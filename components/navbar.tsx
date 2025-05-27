@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@heroui/button';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@heroui/button";
 
 export const Navbar = () => {
-  const [city, setCity] = useState('');
+  const [city, setCity] = useState("");
   const router = useRouter();
 
   const handleSearch = () => {
@@ -42,13 +42,10 @@ export const Navbar = () => {
 
       {/* Open Source Button */}
       <div className="flex gap-4">
-        <button
-          className="px-6 py-3 bg-white/10 text-white rounded-2xl border border-white/20 hover:bg-white/20 transition-all font-bold"
-        >
+        <button className="px-6 py-3 bg-white/10 text-white rounded-2xl border border-white/20 hover:bg-white/20 transition-all font-bold">
           Open Source
         </button>
       </div>
     </nav>
-  
   );
 };

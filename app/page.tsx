@@ -1,12 +1,22 @@
-import { Hero } from '@/components/hero';
+import { NextPage } from "next";
+import { Navbar } from "../components/navbar";
 
-export default async function Home({ searchParams }: { searchParams: { city?: string } }) {
-  const city = searchParams?.city || 'Karachi'; 
+interface PageProps {
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+const Page: NextPage<PageProps> = async ({ searchParams }) => {
+  const city = searchParams.city || "default-city";
 
   return (
-    <div className="bg-black min-h-screen">
-
-      <Hero city={city} />
+    <div>
+      <Navbar />
+      <main>
+        <h1>Weather for {city}</h1>
+        {/* Rest of your page content */}
+      </main>
     </div>
   );
-}
+};
+
+export default Page;
