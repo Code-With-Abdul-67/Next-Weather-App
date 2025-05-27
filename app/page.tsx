@@ -1,18 +1,12 @@
-// import { Link } from "@heroui/link";
-import { Snippet } from "@heroui/snippet";
-import { Code } from "@heroui/code";
-// import { button as buttonStyles } from "@heroui/theme";
-// import { siteConfig } from "@/config/site";
-import { title, subtitle } from "@/components/primitives";
-// import { GithubIcon } from "@/components/icons";
+import { Hero } from '@/components/hero';
 
+export default async function Home({ searchParams }: { searchParams: { city?: string } }) {
+  const city = searchParams?.city || 'Madrid'; // Default to Madrid if no city is provided
 
-import { Hero } from "@/components/hero";
-
-export default function Home() {
   return (
-        <main className="flex flex-col items-center justify-start min-h-screen pt-16">
-      <Hero />
-    </main>
+    <div className="bg-black min-h-screen">
+
+      <Hero city={city} />
+    </div>
   );
 }

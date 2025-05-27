@@ -1,119 +1,48 @@
-import {
-  Navbar as HeroUINavbar,
-  NavbarContent,
-  NavbarMenu,
-  NavbarMenuToggle,
-  NavbarBrand,
-  NavbarItem,
-  NavbarMenuItem,
-} from "@heroui/navbar";
-import { Button } from "@heroui/button";
-import { Kbd } from "@heroui/kbd";
-import { Link } from "@heroui/link";
-import { Input } from "@heroui/input";
-// import { link as linkStyles } from "@heroui/theme";
-import NextLink from "next/link";
-// import clsx from "clsx";
+'use client';
 
-import { siteConfig } from "@/config/site";
-import { ThemeSwitch } from "@/components/theme-switch";
-import {
-  TwitterIcon,
-  GithubIcon,
-  DiscordIcon,
-  HeartFilledIcon,
-  SearchIcon,
-  Logo,
-} from "@/components/icons";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export const Navbar = () => {
-  const searchInput = (
-    <Input
-      aria-label="Search"
-      classNames={{
-        inputWrapper: "bg-default-100",
-        input: "text-sm",
-      }}
-      endContent={
-        <Kbd className="hidden lg:inline-block" keys={["command"]}>
-          K
-        </Kbd>
-      }
-      labelPlacement="outside"
-      placeholder="Search..."
-      startContent={
-        <SearchIcon className="text-base text-default-400 pointer-events-none flex-shrink-0" />
-      }
-      type="search"
-    />
-  );
+  const [city, setCity] = useState('');
+  const router = useRouter();
+
+  const handleSearch = () => {
+    if (city.trim()) {
+      router.push(`/?city=${encodeURIComponent(city)}`);
+    }
+  };
 
   return (
-    <HeroUINavbar maxWidth="xl" position="sticky">
-      <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand as="li" className="gap-3 max-w-fit">
-          <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Logo />
-            <p className="font-bold text-inherit">Next Weather App</p>
-          </NextLink>
-        </NavbarBrand>
-      </NavbarContent>
+    <nav className="w-full bg-black/60 backdrop-blur-md border border-white/20 p-4 flex justify-between items-center shadow-lg">
+      {/* Left: App Title */}
+      <div className="text-white text-xl font-bold tracking-wide">
+        WeatherNow
+      </div>
 
-      {/* Desktop content (right side) */}
-      <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full gap-4 items-center"
-        justify="end"
-      >
-        {/* 🔍 Search Input */}
-        <div className="hidden md:block w-64">{searchInput}</div>
+      {/* Center: Search Bar */}
+      <div className="flex items-center gap-3">
+        <input
+          type="text"
+          placeholder="Search city..."
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          className="px-4 py-2 rounded-full bg-gray-800/80 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+        />
+        <button
+          onClick={handleSearch}
+          className="px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+        >
+          Search
+        </button>
+      </div>
 
-        {/* 🐙 GitHub Button */}
-        <NavbarItem className="hidden md:flex">
-          <Button
-            isExternal
-            as={Link}
-            className="text-sm font-normal text-default-600 bg-default-100"
-            href={siteConfig.links.github}
-            startContent={<GithubIcon className="text-danger" />}
-            variant="flat"
-          >
-            Open Source
-          </Button>
-        </NavbarItem>
-      </NavbarContent>
-
-      {/* Mobile navbar icons */}
-      <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        <Link isExternal aria-label="Github" href={siteConfig.links.github}>
-          <GithubIcon className="text-default-500" />
-        </Link>
-        <ThemeSwitch />
-        <NavbarMenuToggle />
-      </NavbarContent>
-
-      {/* Mobile menu */}
-      <NavbarMenu>
-        {searchInput}
-        <div className="mx-4 mt-2 flex flex-col gap-2">
-          {siteConfig.navMenuItems.map((item, index) => (
-            <NavbarMenuItem key={`${item}-${index}`}>
-              <Link
-                color={
-                  index === 2
-                    ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
-                      ? "danger"
-                      : "foreground"
-                }
-                href="#"
-                size="lg"
-              >
-                {item.label}
-              </Link>
-            </NavbarMenuItem>
-          ))}
-        </div>
-      </NavbarMenu>
-    </HeroUINavbar>
+      {/* Right: Unit Toggle and Open Source */}
+      <div className="flex gap-3">
+        <button className="px-4 py-2 bg-red-600/80 text-white rounded-full hover:bg-red-700 transition-colors">
+          Open Source
+        </button>
+      </div>
+    </nav>
   );
 };
