@@ -99,7 +99,7 @@ export default defineConfig([
       "react-hooks/exhaustive-deps": "off",
       "jsx-a11y/click-events-have-key-events": "warn",
       "jsx-a11y/interactive-supports-focus": "warn",
-      "prettier/prettier": "warn",
+      "prettier/prettier": "off",
       "no-unused-vars": "off",
       "unused-imports/no-unused-vars": "off",
       "unused-imports/no-unused-imports": "warn",
@@ -152,7 +152,7 @@ export default defineConfig([
       ],
 
       "padding-line-between-statements": [
-        "warn",
+        "off",
         {
           blankLine: "always",
           prev: "*",
