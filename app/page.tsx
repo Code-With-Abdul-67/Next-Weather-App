@@ -1,15 +1,10 @@
 import { NextPage } from "next";
 import { Hero } from "@/components/hero";
 
-interface PageProps {
+// Use Next.js's built-in PageProps type directly if needed
+const Home: NextPage<{
   searchParams: { [key: string]: string | string[] | undefined };
-}
-
-const Home: NextPage<PageProps> = async ({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) => {
+}> = async ({ searchParams }) => {
   const city =
     typeof searchParams?.city === "string"
       ? searchParams.city
