@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@heroui/button';
 
 export const Navbar = () => {
   const [city, setCity] = useState('');
@@ -14,35 +15,40 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="w-full bg-black/60 backdrop-blur-md border border-white/20 p-4 flex justify-between items-center shadow-lg">
-      {/* Left: App Title */}
-      <div className="text-white text-xl font-bold tracking-wide">
-        WeatherNow
+    <nav className="w-full bg-white/10 backdrop-blur-md border-b border-white/20 px-6 py-4 flex justify-between items-center shadow-lg fixed top-0 left-0 z-50">
+      {/* Logo/Title */}
+      <div className="text-white text-2xl font-bold tracking-wide">
+        Next Weather
       </div>
 
-      {/* Center: Search Bar */}
-      <div className="flex items-center gap-3">
+      {/* Search Bar */}
+      <div className="flex items-center gap-4 max-w-md w-full">
         <input
           type="text"
-          placeholder="Search city..."
+          placeholder="Search your city name..."
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          className="px-4 py-2 rounded-full bg-gray-800/80 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          className="w-full px-5 py-3 rounded-2xl bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all placeholder-gray-400 text-sm font-medium"
         />
-        <button
+        <Button
           onClick={handleSearch}
-          className="px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+          color="secondary"
+          variant="ghost"
+          className="rounded-2xl px-6 py-3 text-white border border-white/20 hover:bg-white/20 transition-all font-bold"
         >
           Search
-        </button>
+        </Button>
       </div>
 
-      {/* Right: Unit Toggle and Open Source */}
-      <div className="flex gap-3">
-        <button className="px-4 py-2 bg-red-600/80 text-white rounded-full hover:bg-red-700 transition-colors">
+      {/* Open Source Button */}
+      <div className="flex gap-4">
+        <button
+          className="px-6 py-3 bg-white/10 text-white rounded-2xl border border-white/20 hover:bg-white/20 transition-all font-bold"
+        >
           Open Source
         </button>
       </div>
     </nav>
+  
   );
 };

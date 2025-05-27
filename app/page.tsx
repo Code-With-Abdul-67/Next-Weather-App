@@ -1,7 +1,7 @@
 import { Hero } from '@/components/hero';
 
 export default async function Home({ searchParams }: { searchParams: { city?: string } }) {
-  const city = searchParams?.city || 'Madrid'; // Default to Madrid if no city is provided
+  const city = searchParams?.city || 'Karachi'; 
 
   return (
     <div className="bg-black min-h-screen">
