@@ -1,7 +1,6 @@
 import { NextPage } from "next";
 import { Hero } from "@/components/hero";
 
-// Use Next.js's built-in PageProps type directly if needed
 const Home: NextPage<{
   searchParams: { [key: string]: string | string[] | undefined };
 }> = async ({ searchParams }) => {
