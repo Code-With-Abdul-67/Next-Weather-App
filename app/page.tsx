@@ -1,9 +1,10 @@
-import { NextPage } from "next";
 import { Hero } from "@/components/hero";
 
-const Home: NextPage<{
+type Props = {
   searchParams: { [key: string]: string | string[] | undefined };
-}> = async ({ searchParams }) => {
+};
+
+const Home = async ({ searchParams }: Props) => {
   const city =
     typeof searchParams?.city === "string"
       ? searchParams.city
