@@ -24,7 +24,6 @@ interface WeatherData {
 interface HeroProps {
   city?: string;
 }
-
 const fetchWeatherData = async (city: string): Promise<WeatherData | null> => {
   const apiKey = process.env.OPENWEATHERMAP_API_KEY;
   console.log("Fetching weather for city:", city);
@@ -47,7 +46,6 @@ const fetchWeatherData = async (city: string): Promise<WeatherData | null> => {
     console.log("API Response:", response.data);
     return response.data;
   } catch (error: any) {
-    // console.error('Error fetching weather data:', error.message);
 
     return null;
   }
