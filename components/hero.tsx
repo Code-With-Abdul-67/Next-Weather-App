@@ -68,15 +68,15 @@ export const Hero = async ({ city = "Karachi" }: HeroProps) => {
   const windSpeed = weatherData ? weatherData.wind.speed : 2;
   const sunset = weatherData
     ? new Date(weatherData.sys.sunset * 1000).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
+      hour: "2-digit",
+      minute: "2-digit",
+    })
     : "18:51";
   const sunrise = weatherData
     ? new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
+      hour: "2-digit",
+      minute: "2-digit",
+    })
     : "06:08";
   const cityName = weatherData ? weatherData.name : "Madrid";
   const lowHigh = weatherData
@@ -114,86 +114,97 @@ export const Hero = async ({ city = "Karachi" }: HeroProps) => {
         </div>
 
         {/* Wind */}
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 text-center">
-          <p className="text-sm text-gray-400 font-bold">Wind</p>
-          <div className="w-20 h-20 mx-auto relative">
-            {" "}
-            {/* Increased from w-16 h-16 to w-20 h-20 */}
-            <svg className="w-full h-full" viewBox="0 0 100 100">
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 text-center">
+          <p className="text-xs uppercase text-gray-300 font-semibold tracking-widest mb-3">
+            Wind
+          </p>
+          <div className="w-24 h-24 mx-auto relative">
+            <svg
+              className="w-full h-full"
+              viewBox="0 0 100 100"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* Circle */}
               <circle
                 cx="50"
                 cy="50"
-                r="45"
+                r="44"
                 fill="none"
-                stroke="#4B5563"
-                strokeWidth="2"
+                stroke="rgba(255, 255, 255, 0.3)"
+                strokeWidth="4"
               />
+              {/* Wind direction line */}
               <line
                 x1="50"
-                y1="5"
+                y1="10"
                 x2="50"
-                y2="20"
+                y2="28"
                 stroke="#fff"
-                strokeWidth="2"
+                strokeWidth="3"
+                strokeLinecap="round"
                 transform="rotate(90 50 50)"
               />
+              {/* Directions */}
               <text
                 x="50"
-                y="50"
+                y="18"
                 textAnchor="middle"
-                dy="0.3em"
-                fontSize="10"
                 fill="#fff"
-                fontWeight="bold"
+                fontSize="11"
+                fontWeight="600"
+                letterSpacing="0.06em"
               >
                 N
               </text>
               <text
                 x="50"
-                y="95"
+                y="85"
                 textAnchor="middle"
-                dy="0.3em"
-                fontSize="10"
                 fill="#fff"
-                fontWeight="bold"
+                fontSize="11"
+                fontWeight="600"
+                letterSpacing="0.06em"
               >
                 S
               </text>
               <text
-                x="5"
-                y="50"
+                x="18"
+                y="52"
                 textAnchor="middle"
-                dx="-0.3em"
-                fontSize="10"
                 fill="#fff"
-                fontWeight="bold"
+                fontSize="11"
+                fontWeight="600"
+                letterSpacing="0.06em"
               >
                 W
               </text>
               <text
-                x="95"
-                y="50"
+                x="82"
+                y="52"
                 textAnchor="middle"
-                dx="0.3em"
-                fontSize="10"
                 fill="#fff"
-                fontWeight="bold"
+                fontSize="11"
+                fontWeight="600"
+                letterSpacing="0.06em"
               >
                 E
               </text>
+              {/* Wind Speed */}
               <text
                 x="50"
-                y="40"
+                y="48"
                 textAnchor="middle"
-                fontSize="12"
                 fill="#fff"
-                fontWeight="bold"
+                fontSize="11"
+                fontWeight="700"
               >
                 {windSpeed} m/s
               </text>
             </svg>
           </div>
         </div>
+
+
         {/* UV Index (Static for now) */}
         <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4">
           <p className="text-sm text-gray-400">UV Index</p>
@@ -257,6 +268,8 @@ export const Hero = async ({ city = "Karachi" }: HeroProps) => {
           </div>
         </div>
       </div> */}
+
+      
     </main>
   );
 };

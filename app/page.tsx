@@ -1,15 +1,17 @@
 import { Hero } from "@/components/hero";
 
-type Props = {
-  searchParams: { [key: string]: string | string[] | undefined };
-};
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const { city: rawCity } = await searchParams;
 
-const Home = async ({ searchParams }: Props) => {
   const city =
-    typeof searchParams?.city === "string"
-      ? searchParams.city
-      : Array.isArray(searchParams?.city)
-      ? searchParams.city[0] || "Karachi"
+    typeof rawCity === "string"
+      ? rawCity
+      : Array.isArray(rawCity)
+      ? rawCity[0] ?? "Karachi"
       : "Karachi";
 
   return (
@@ -17,6 +19,4 @@ const Home = async ({ searchParams }: Props) => {
       <Hero city={city} />
     </div>
   );
-};
-
-export default Home;
+}
