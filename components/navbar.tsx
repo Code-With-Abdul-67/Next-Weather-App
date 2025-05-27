@@ -11,9 +11,9 @@ import { Button } from "@heroui/button";
 import { Kbd } from "@heroui/kbd";
 import { Link } from "@heroui/link";
 import { Input } from "@heroui/input";
-import { link as linkStyles } from "@heroui/theme";
+// import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
-import clsx from "clsx";
+// import clsx from "clsx";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
@@ -59,10 +59,15 @@ export const Navbar = () => {
         </NavbarBrand>
       </NavbarContent>
 
+      {/* Desktop content (right side) */}
       <NavbarContent
-        className="hidden sm:flex basis-1/5 sm:basis-full"
+        className="hidden sm:flex basis-1/5 sm:basis-full gap-4 items-center"
         justify="end"
-          >
+      >
+        {/* 🔍 Search Input */}
+        <div className="hidden md:block w-64">{searchInput}</div>
+
+        {/* 🐙 GitHub Button */}
         <NavbarItem className="hidden md:flex">
           <Button
             isExternal
@@ -77,6 +82,7 @@ export const Navbar = () => {
         </NavbarItem>
       </NavbarContent>
 
+      {/* Mobile navbar icons */}
       <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
         <Link isExternal aria-label="Github" href={siteConfig.links.github}>
           <GithubIcon className="text-default-500" />
@@ -85,6 +91,7 @@ export const Navbar = () => {
         <NavbarMenuToggle />
       </NavbarContent>
 
+      {/* Mobile menu */}
       <NavbarMenu>
         {searchInput}
         <div className="mx-4 mt-2 flex flex-col gap-2">
