@@ -6,7 +6,7 @@ import { Button } from "@heroui/button";
 import { Menu, X } from "lucide-react";
 
 export const Navbar = () => {
-  const [city, setCity] = useState<string>("");
+  const [city, setCity] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -16,10 +16,11 @@ export const Navbar = () => {
       try {
         setLoading(true);
         await router.push(`/?city=${encodeURIComponent(city)}`);
-        setMenuOpen(false);  // Close mobile menu
-        setCity('');         // Clear search input
+        setMenuOpen(false);
+        setCity("");
       } catch (error) {
-        // Handle error if needed
+        // Optionally handle errors here
+        console.error("Navigation error:", error);
       } finally {
         setLoading(false);
       }
@@ -30,7 +31,7 @@ export const Navbar = () => {
     <nav className="w-full bg-white/10 backdrop-blur-md border-b border-white/20 px-6 py-4 flex justify-between items-center shadow-lg fixed top-0 left-0 z-50">
       {/* Logo & title */}
       <div className="flex items-center gap-2">
-        <img src="/rainfall.ico" alt="Logo" height="40px" width="40px" />
+        <img src="/rainfall.ico" alt="Logo" height="40" width="40" />
         <div className="text-white text-2xl font-bold tracking-wide">
           Next Weather
         </div>
@@ -44,14 +45,18 @@ export const Navbar = () => {
           type="text"
           value={city}
           onChange={(e) => setCity(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSearch();
+          }}
         />
         <Button
           className="rounded-2xl px-6 py-3 text-white border border-white/20 hover:bg-white/20 transition-all font-bold"
           color="default"
           variant="ghost"
           onClick={handleSearch}
+          disabled={loading}
         >
-          Search
+          {loading ? "Searching..." : "Search"}
         </Button>
       </div>
 
@@ -109,14 +114,18 @@ export const Navbar = () => {
           type="text"
           value={city}
           onChange={(e) => setCity(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSearch();
+          }}
         />
         <Button
           className="rounded-2xl px-6 py-3 text-white border border-white/20 hover:bg-white/20 transition-all font-bold"
           color="default"
           variant="ghost"
           onClick={handleSearch}
+          disabled={loading}
         >
-          Search
+          {loading ? "Searching..." : "Search"}
         </Button>
       </div>
 
@@ -125,7 +134,7 @@ export const Navbar = () => {
         className={`absolute bottom-0 left-0 h-1 bg-blue-500 transition-all duration-300 ease-in-out ${
           loading ? "w-full opacity-100" : "w-0 opacity-0"
         }`}
-      ></div>
+      />
     </nav>
   );
 };
