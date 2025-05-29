@@ -11,9 +11,10 @@ export default function RootLayout({ children }) {
     <html suppressHydrationWarning lang="en">
       <head />
       <body
+        suppressHydrationWarning // Add this to suppress warnings on body
         className={clsx(
           "min-h-screen text-foreground bg-background font-sans antialiased",
-          fontSans.variable,
+          fontSans.variable, // Keep this, but suppress warning
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
