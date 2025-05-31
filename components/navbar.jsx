@@ -29,7 +29,7 @@ export const Navbar = () => {
 
   return (
     <nav className="w-full bg-white/10 backdrop-blur-md border-b border-white/20 px-6 py-4 flex justify-between items-center shadow-lg fixed top-0 left-0 z-50">
-      {/* Logo & title */}
+  
       <div className="flex items-center gap-2">
         <img src="/rainfall.ico" alt="Logo" height="40" width="40" />
         <div className="text-white text-2xl font-bold tracking-wide">
@@ -37,7 +37,6 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* Desktop menu */}
       <div className="hidden md:flex items-center gap-4 max-w-md w-full">
         <input
           className="w-full px-5 py-3 rounded-2xl bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all placeholder-gray-400 text-sm font-medium"
@@ -60,7 +59,6 @@ export const Navbar = () => {
         </Button>
       </div>
 
-      {/* GitHub link */}
       <a
         href="https://github.com/Code-With-Abdul-67/Next-Weather-App"
         target="_blank"
@@ -68,7 +66,6 @@ export const Navbar = () => {
         className="hidden md:flex items-center gap-3 px-5 py-3 bg-white/10 text-white rounded-2xl border border-white/20 hover:bg-white/20 transition-all font-semibold"
         title="View on GitHub"
       >
-        {/* GitHub Icon */}
         <svg
           className="w-5 h-5"
           fill="currentColor"
@@ -85,7 +82,6 @@ export const Navbar = () => {
         <span>Open Source</span>
       </a>
 
-      {/* Mobile Hamburger Icon */}
       <div className="md:hidden">
         <button
           onClick={() => setMenuOpen(!menuOpen)}
@@ -96,7 +92,6 @@ export const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Dropdown Menu */}
       <div
         className={`
           absolute top-full left-0 w-full bg-white/10 backdrop-blur-md border-t border-white/20 px-6 py-4 flex flex-col gap-4 md:hidden z-40
@@ -129,7 +124,6 @@ export const Navbar = () => {
         </Button>
       </div>
 
-      {/* Loading bar */}
       <div
         className={`absolute bottom-0 left-0 h-1 bg-blue-500 transition-all duration-300 ease-in-out ${
           loading ? "w-full opacity-100" : "w-0 opacity-0"

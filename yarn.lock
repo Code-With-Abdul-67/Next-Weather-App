@@ -985,6 +985,22 @@
     "@react-stately/toast" "3.1.0"
     "@react-stately/utils" "3.10.6"
 
+"@heroui/toast@^2.0.9":
+  version "2.0.9"
+  resolved "https://registry.yarnpkg.com/@heroui/toast/-/toast-2.0.9.tgz#a1257b0c61cadf7b3354d582efddda5ed544f584"
+  integrity sha512-V/x7bkRRS5BabF3Oe4sJWiKygkGtN9/mwFw0phJwx7PYV2Q6WuOvOvq+Zbt8bEz21j58glg4u+eLFBChNPYn7A==
+  dependencies:
+    "@heroui/react-utils" "2.1.10"
+    "@heroui/shared-icons" "2.1.7"
+    "@heroui/shared-utils" "2.1.9"
+    "@heroui/spinner" "2.2.16"
+    "@heroui/use-is-mobile" "2.2.9"
+    "@react-aria/interactions" "3.25.0"
+    "@react-aria/toast" "3.0.2"
+    "@react-aria/utils" "3.28.2"
+    "@react-stately/toast" "3.1.0"
+    "@react-stately/utils" "3.10.6"
+
 "@heroui/tooltip@2.2.16":
   version "2.2.16"
   resolved "https://registry.npmjs.org/@heroui/tooltip/-/tooltip-2.2.16.tgz"

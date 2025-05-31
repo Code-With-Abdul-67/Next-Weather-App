@@ -33,7 +33,8 @@ export const Hero = async ({ city = "Karachi" }) => {
     }
   };
 
-  const { current: weatherData, forecast: forecastData } = await fetchWeatherData(city);
+  const { current: weatherData, forecast: forecastData } =
+    await fetchWeatherData(city);
 
   const temperature = weatherData ? Math.round(weatherData.main.temp) : 10;
   const description = weatherData
@@ -66,11 +67,13 @@ export const Hero = async ({ city = "Karachi" }) => {
       )}°`
     : "Low: 6° High: 12°";
 
-  // Get timezone offset from weatherData (in seconds)
+
   const timezoneOffsetSeconds = weatherData ? weatherData.timezone : 0;
   const currentTime = new Date();
   const cityTime = new Date(
-    currentTime.getTime() + timezoneOffsetSeconds * 1000 + currentTime.getTimezoneOffset() * 60 * 1000
+    currentTime.getTime() +
+      timezoneOffsetSeconds * 1000 +
+      currentTime.getTimezoneOffset() * 60 * 1000
   );
   const formattedDateTime = cityTime.toLocaleString("en-PK", {
     weekday: "long",
@@ -78,21 +81,35 @@ export const Hero = async ({ city = "Karachi" }) => {
     minute: "2-digit",
     hour12: true,
   });
-  const formattedDate = cityTime.toLocaleDateString({cityName});
+  const formattedDate = cityTime.toLocaleDateString("en-PK", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
-  // Calculate wind gusts from forecast (max speed in next 24 hours)
+
   let windGust = windSpeed;
   if (forecastData) {
     const next24Hours = forecastData.list.filter((entry) => {
       const forecastTime = new Date(entry.dt * 1000);
-      return forecastTime > cityTime && forecastTime < cityTime.setHours(cityTime.getHours() + 24);
+      return (
+        forecastTime > cityTime &&
+        forecastTime < cityTime.setHours(cityTime.getHours() + 24)
+      );
     });
-    windGust = Math.max(...next24Hours.map((entry) => entry.wind.speed), windSpeed);
+    windGust = Math.max(
+      ...next24Hours.map((entry) => entry.wind.speed),
+      windSpeed
+    );
   }
 
   // Convert m/s to km/h
   const windSpeedKmH = Math.round(windSpeed * 3.6);
   const windGustKmH = Math.round(windGust * 3.6);
+
+  // Calculate fill percentages for gauges
+  const visibilityFill = (visibility / 10) * 100; // Visibility (0 km to 10 km) mapped to 0% to 100%
+  const pressureFill = ((pressure - 900) / (1100 - 900)) * 100; // Pressure (900 hPa to 1100 hPa) mapped to 0% to 100%
 
   // Process 5-Day Forecast Data
   const dailyForecasts = [];
@@ -101,7 +118,7 @@ export const Hero = async ({ city = "Karachi" }) => {
 
     forecastData.list.forEach((entry) => {
       const date = new Date(entry.dt * 1000);
-      const day = date.toLocaleDateString({cityName}, { weekday: "short", day: "numeric" });
+      const day = date.toLocaleDateString("en-PK", { weekday: "short", day: "numeric" });
 
       if (!dailyData[day]) {
         dailyData[day] = {
@@ -128,7 +145,8 @@ export const Hero = async ({ city = "Karachi" }) => {
             data.descriptions.filter((d) => d === a).length
         )
         .pop();
-      const rainChance = data.rain > 0 ? Math.min(100, Math.round(data.rain * 10)) : 0;
+      const rainChance =
+        data.rain > 0 ? Math.min(100, Math.round(data.rain * 10)) : 0;
 
       dailyForecasts.push({
         day,
@@ -139,11 +157,11 @@ export const Hero = async ({ city = "Karachi" }) => {
     }
 
     dailyForecasts.splice(5);
-  } 
+  }
 
   return (
     <main className="flex flex-col items-center justify-start bg-black min-h-screen text-white p-4 sm:p-6">
-      <div className="w-full max-w-4xl bg-white/5 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center mb-4 sm:mb-6">
+      <div className="w-full max-w-4xl bg-white/5 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center mb-4 sm:mb-6 bg-gradient-to-br from-gray-900 via-gray-800">
         <p className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
           {formattedDateTime}, {formattedDate} in {cityName}
         </p>
@@ -165,7 +183,7 @@ export const Hero = async ({ city = "Karachi" }) => {
             {dailyForecasts.map((forecast, index) => (
               <div
                 key={index}
-                className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center"
+                className="bg-white/10 backdrop-blur-md border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3 text-center hover:bg-white/20 hover:scale-105 transition-all duration-300"
               >
                 <p className="text-xs sm:text-sm font-semibold text-gray-300">
                   {forecast.day}
@@ -185,25 +203,51 @@ export const Hero = async ({ city = "Karachi" }) => {
         </div>
       </div>
 
-            {/* Air Pollution */}
-      <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6 ">
-        <div className="bg-white/5 backdrop-blur-md border/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-gray-600 via-grey-800">
-          <p className="text-xs sm:text-sm text-gray-400">Air Pollution</p>
-          <div className="w-full h-1 sm:h-2 bg-gradient-to-r from-blue-400 to-orange-500 rounded-full mt-1 sm:mt-2"></div>
-          <p className="text-xs sm:text-sm text-gray-400 mt-1 sm:mt-2">
-            Air quality is excellent.
+      <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+        {/* Pressure */}
+        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black backdrop-blur-md border border-gray-700 rounded-lg sm:rounded-2xl p-4 sm:p-6 text-center shadow-lg hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
+          <p className="text-xs sm:text-sm uppercase text-gray-300 font-semibold tracking-widest mb-2 sm:mb-3">
+            Pressure
           </p>
+          <div className="w-32 h-32 sm:w-40 sm:h-25 mx-auto relative mb-2 sm:mb-4">
+            <svg className="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <circle
+                cx="50"
+                cy="50"
+                r="35"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.15)"
+                strokeWidth="8"
+              />
+              <circle
+                cx="50"
+                cy="50"
+                r="35"
+                fill="none"
+                stroke="url(#pressureGradient)"
+                strokeWidth="8"
+                strokeDasharray={`${pressureFill * 2.2}, 220`} // 220 is circumference of circle with r=35
+              />
+              <defs>
+                <linearGradient id="pressureGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: "#4B5EAA" }} />
+                  <stop offset="100%" style={{ stopColor: "#A9BFE0" }} />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div className="text-center">
+            <p className="text-sm sm:text-base font-bold text-white">
+              {pressure} hPa
+            </p>
+            <p className="text-xs sm:text-sm text-gray-400">
+              {pressure >= 1013 ? "High pressure" : "Low pressure"}. Expect weather changes.
+            </p>
+          </div>
         </div>
 
-            {/* Sunset */}
-        <div className="bg-white/5 backdrop-blur-md/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-gray-900 via-yellow-600 to-yellow-800">
-          <p className="text-xs sm:text-sm text-gray-400 ">Sunset</p>
-          <p className="text-base sm:text-lg font-semibold">{sunset}</p>
-          <p className="text-xs sm:text-sm text-gray-400 ">Sunrise: {sunrise}</p>
-        </div>
-
-            {/* Wind */}
-        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black backdrop-blur-md border border-gray-700 rounded-lg sm:rounded-2xl p-4 sm:p-6 text-center shadow-lg">
+        {/* Wind */}
+        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black backdrop-blur-md border border-gray-700 rounded-lg sm:rounded-2xl p-4 sm:p-6 text-center shadow-lg hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
           <p className="text-xs sm:text-sm uppercase text-gray-300 font-semibold tracking-widest mb-2 sm:mb-3">
             Wind
           </p>
@@ -233,7 +277,18 @@ export const Hero = async ({ city = "Karachi" }) => {
                   markerEnd="url(#arrowhead)"
                 />
               </g>
-
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="5"
+                  markerHeight="1.5"
+                  refX="7.9"
+                  refY="1.5"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#fff" />
+                </marker>
+              </defs>
               <text x="50" y="18" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="600">
                 N
               </text>
@@ -261,57 +316,74 @@ export const Hero = async ({ city = "Karachi" }) => {
           </div>
         </div>
 
-            {/* UV Index */}
-        <div className="bg-white/5 backdrop-blur-md border/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-gray-900 via-orange-700 to-orange-800">
-          <p className="text-xs sm:text-sm font-semibold text-black">UV Index</p>
-          <p className="text-base sm:text-lg font-semibold">4 (Moderate)</p>
-          <div className="w-1/2 sm:w-full h-1 sm:h-2 bg-gradient-to-r from-blue-400 to-red-400 rounded-full mt-1 sm:mt-2"></div>
-          <p className="text-xs sm:text-sm text-gray-400 mt-1 sm:mt-2">
-             {cityName} has a moderate UV index.
+        {/* Visibility */}
+        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black backdrop-blur-md border border-gray-700 rounded-lg sm:rounded-2xl p-4 sm:p-6 text-center shadow-lg hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
+          <p className="text-xs sm:text-sm uppercase text-gray-300 font-semibold tracking-widest mb-2 sm:mb-3">
+            Visibility
           </p>
+          <div className="w-32 h-32 sm:w-40 sm:h-25 mx-auto relative mb-2 sm:mb-4">
+            <svg className="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <circle
+                cx="50"
+                cy="50"
+                r="35"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.15)"
+                strokeWidth="8"
+              />
+              <circle
+                cx="50"
+                cy="50"
+                r="35"
+                fill="none"
+                stroke="url(#visibilityGradient)"
+                strokeWidth="8"
+                strokeDasharray={`${visibilityFill * 2.2}, 220`} // 220 is circumference of circle with r=35
+              />
+              <defs>
+                <linearGradient id="visibilityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: "#4B5EAA" }} />
+                  <stop offset="100%" style={{ stopColor: "#A9BFE0" }} />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div className="text-center">
+            <p className="text-sm sm:text-base font-bold text-white">
+              {visibility} km
+            </p>
+            <p className="text-xs sm:text-sm text-gray-400">
+              In {cityName}
+            </p>
+          </div>
         </div>
 
-            {/* Population */}
-        <div className="bg-white/5 backdrop-blur-md border/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-gray-900 via-purple-600 to-purple-800">
-          <p className="text-xs sm:text-sm font-semibold text-black">Population</p>
-          <p className="text-base sm:text-lg font-semibold">1.0M</p>
-          <p className="text-xs sm:text-sm text-gray-400">
-            Latest population data for {cityName}.
+        {/* Humidity */}
+        <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-gray-900 via-gray-800 hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
+          <p className="text-xs sm:text-sm font-semibold">
+            Humidity
           </p>
+          <p className="text-base sm:text-lg font-semibold">{humidity}%</p>
+          <p className="text-xs sm:text-sm text-gray-400">In {cityName}</p>
         </div>
 
-            {/* Feels Like */}
-        <div className="bg-white/5 backdrop-blur-md border/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-gray-900 via-pink-600 to-red-800">
-          <p className="text-xs sm:text-sm font-semibold text-black">Feels Like</p>
+        {/* Feels Like */}
+        <div className="bg-white/5 backdrop-blur-md border/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-gray-900 via-gray-800 hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
+          <p className="text-xs sm:text-sm font-semibold">
+            Feels Like
+          </p>
           <p className="text-base sm:text-lg font-semibold">{feelsLike}°</p>
           <p className="text-xs sm:text-sm text-gray-400">
             Feels close to the actual temperature in {cityName}.
           </p>
         </div>
 
-            {/* Humidity */}
-        <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-blue-600 via-blue-800">
-          <p className="text-xs sm:text-sm font-semibold text-black">Humidity</p>
-          <p className="text-base sm:text-lg font-semibold">{humidity}%</p>
-          <p className="text-xs sm:text-sm text-gray-400">
-            In {cityName}
-          </p>
-        </div>
-
-            {/* Visibility */}
-        <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-green-600 via-green-800">
-          <p className="text-xs sm:text-sm font-semibold text-black">Visibility</p>
-          <p className="text-base sm:text-lg font-semibold">{visibility} km</p>
-          <p className="text-xs sm:text-sm text-gray-400">In {cityName}</p>
-        </div>
-
-            {/* Pressure */}
-        <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg sm:rounded-2xl p-3 sm:p-4">
-          <p className="text-xs sm:text-sm font-semibold">Pressure</p>
-          <p className="text-base sm:text-lg font-semibold">{pressure} hPa</p>
-          <p className="text-xs sm:text-sm text-gray-400">
-            In {cityName}
-          </p>
+        {/* Sunset */}
+        <div className="bg-white/5 backdrop-blur-md/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-gray-900 via-gray-800 hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
+          <p className="text-xs sm:text-sm text-gray-400 ">Sunset</p>
+          <p className="text-base sm:text-lg font-semibold">{sunset}</p>
+            <p className="text-xs sm:text-sm text-gray-400 ">Sunrise</p>
+               <p className="text-base sm:text-lg font-semibold">{sunrise}</p>
         </div>
       </div>
     </main>
@@ -321,10 +393,22 @@ export const Hero = async ({ city = "Karachi" }) => {
 // Helper function to convert degrees to cardinal direction
 function getCardinalDirection(degrees) {
   const directions = [
-    "N", "NNE", "NE", "ENE",
-    "E", "ESE", "SE", "SSE",
-    "S", "SSW", "SW", "WSW",
-    "W", "WNW", "NW", "NNW"
+    "N",
+    "NNE",
+    "NE",
+    "ENE",
+    "E",
+    "ESE",
+    "SE",
+    "SSE",
+    "S",
+    "SSW",
+    "SW",
+    "WSW",
+    "W",
+    "WNW",
+    "NW",
+    "NNW",
   ];
   const index = Math.round(degrees / 22.5) % 16;
   return directions[index];
