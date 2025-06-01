@@ -10,13 +10,15 @@ const config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)"],
-        mono: ["var(--font-mono)"],
+      cursive: 'var(--CursiveFont)',
       },
     },
   },
+
   darkMode: "class",
   plugins: [heroui()],
 };
 
 module.exports = config;
+
+
