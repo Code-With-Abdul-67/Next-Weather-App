@@ -30,7 +30,7 @@ export const Navbar = () => {
     <nav className="w-full bg-white/10 backdrop-blur-md border-b border-white/20 px-4 py-2 flex justify-between items-center shadow-md fixed top-0 left-0 z-50 h-14 md:h-16">
       {/* Logo */}
       <div className="flex items-center gap-2">
-        <img src="/rainfall.ico" alt="Logo" height="32" width="32" />
+        <img src="/rain.ico" alt="Logo" height="35" width="35" />
         <div className="text-white text-xl font-semibold tracking-wide">
           Next Weather
         </div>
@@ -47,7 +47,7 @@ export const Navbar = () => {
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
         <Button
-          className="px-4 py-2 rounded-xl text-white border border-white/20 hover:bg-white/10 transition-all font-semibold text-sm"
+          className="px-4 py-2 rounded-xl text-white border border-white/20 hover:bg-white/10 transition-all font-semibold text-sm bg-gradient-to-tr from-blue-800 to-cyan-500"
           variant="ghost"
           onClick={handleSearch}
           disabled={loading}
@@ -56,12 +56,11 @@ export const Navbar = () => {
         </Button>
       </div>
 
-      {/* GitHub Button */}
       <a
         href="https://github.com/Code-With-Abdul-67/Next-Weather-App"
         target="_blank"
         rel="noopener noreferrer"
-        className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded-xl border border-white/20 hover:bg-white/20 transition-all font-semibold text-sm "
+        className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded-xl border border-white/20 hover:bg-white/20 transition-all font-semibold text-sm bg-gradient-to-tr from-blue-800 to-cyan-500"
         title="View on GitHub"
       >
         <svg
@@ -76,7 +75,6 @@ export const Navbar = () => {
             d="M12 0C5.37 0 0 5.373 0 12a12.03 12.03 0 008.207 11.387c.6.112.793-.262.793-.58v-2.217c-3.338.727-4.033-1.61-4.033-1.61-.546-1.385-1.334-1.755-1.334-1.755-1.09-.745.082-.73.082-.73 1.205.086 1.84 1.24 1.84 1.24 1.07 1.833 2.806 1.304 3.49.997.107-.783.42-1.305.763-1.605-2.665-.303-5.466-1.362-5.466-6.06 0-1.34.47-2.437 1.236-3.296-.124-.303-.536-1.522.117-3.174 0 0 1.008-.322 3.3 1.23a11.51 11.51 0 016 0c2.29-1.552 3.296-1.23 3.296-1.23.655 1.652.243 2.87.12 3.174.77.86 1.236 1.957 1.236 3.296 0 4.71-2.804 5.754-5.475 6.05.43.372.823 1.104.823 2.225v3.293c0 .32.19.697.8.58A12.03 12.03 0 0024 12c0-6.627-5.373-12-12-12z"
           />
         </svg>
-        <span>GitHub</span>
       </a>
 
       {/* Mobile menu button */}
@@ -89,6 +87,7 @@ export const Navbar = () => {
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
+      
 
       {/* Mobile menu dropdown */}
       <div
@@ -107,13 +106,14 @@ export const Navbar = () => {
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
         <Button
-          className="px-4 py-2 rounded-xl text-white border border-white/bg-white/20 hover:bg-white/20 transition-all font-semibold text-sm"
+          className="px-4 py-2 rounded-xl text-white border border-white/bg-white/20 hover:bg-white/20 transition-all font-semibold text-sm bg-gradient-to-tr from-blue-800 to-cyan-500"
           variant="ghost"
           onClick={handleSearch}
           disabled={loading}
         >
           {loading ? "Searching..." : "Search"}
         </Button>
+        
       </div>
 
       {/* Bottom loading bar */}

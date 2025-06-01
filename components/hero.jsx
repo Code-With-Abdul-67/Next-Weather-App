@@ -1,6 +1,4 @@
 import axios from "axios";
-import { Cloud } from "lucide-react";
-import { Dancing_Script } from "next/font/google";
 
 export const Hero = async ({ city = "Karachi" }) => {
   const fetchWeatherData = async (city) => {
@@ -168,7 +166,7 @@ export const Hero = async ({ city = "Karachi" }) => {
   }
 
   return (
-    <main className="flex flex-col items-center justify-start bg-black min-h-screen text-white p-4 sm:p-6">
+    <main className="flex flex-col items-center justify-start bg-grey min-h-screen text-white p-4 sm:p-6">
       <div className="w-full max-w-4xl bg-white/5 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center mb-4 sm:mb-6 bg-gradient-to-br from-gray-900 via-gray-800">
         <p className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
           {formattedDateTime}, {formattedDate} in {cityName}
@@ -201,7 +199,7 @@ export const Hero = async ({ city = "Karachi" }) => {
 
                 {/* Cloud Icon */}
                 <div className="flex items-center justify-center mt-1">
-                  <p>Clouds:</p>
+                  {/* <p>Clouds:</p> */}
                   <svg
                     className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400 mr-1"
                     fill="currentColor"
@@ -216,18 +214,21 @@ export const Hero = async ({ city = "Karachi" }) => {
                   </span>
                 </div>
 
-                {/* Rain Icon */}
+                {/* Rain Icon with Water Droplets */}
                 <div className="flex items-center justify-center mt-1">
-                  <p>Rain:</p>
+                  {/* <p>Rain:</p> */}
                   <svg
                     className="w-7 h-7 text-blue-400 mr-1"
                     fill="currentColor"
-                    viewBox="0 0 26 26"
+                    viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
-                    title="Chance of Rain"
+                    title="Rain Drops"
                   >
-                    <path d="M16 13a4 4 0 10-8 0H5a5 5 0 019.9-1.25A4 4 0 0116 13zm-4 7a1 1 0 01-1-1v-.01a1 1 0 012 0V19a1 1 0 01-1 1zm-4-2a1 1 0 01-1-1v-.01a1 1 0 012 0V17a1 1 0 01-1 1zm8 2a1 1 0 01-1-1v-.01a1 1 0 012 0V19a1 1 0 01-1 1z" />
+                    <path d="M12 2C12 2 7 8.5 7 12a5 5 0 0010 0c0-3.5-5-10-5-10zm0 18a4 4 0 110-8 4 4 0 010 8z" />
+                    <path d="M5 9C5 9 2 13 2 16a3 3 0 006 0c0-2.3-3-7-3-7zm0 9a2 2 0 110-4 2 2 0 010 4z" />
+                    <path d="M19 9c0 .1-3 4.1-3 7a3 3 0 006 0c0-3-3-7-3-7zm0 9a2 2 0 110-4 2 2 0 010 4z" />
                   </svg>
+
                   <span className="text-xs sm:text-sm text-gray-400">
                     {forecast.rainChance}%
                   </span>
@@ -241,7 +242,7 @@ export const Hero = async ({ city = "Karachi" }) => {
       <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
         {/* Pressure */}
         <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black backdrop-blur-md border border-gray-700 rounded-lg sm:rounded-2xl p-4 sm:p-6 text-center shadow-lg hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
-          <p className="text-xs sm:text-sm uppercase text-gray-300 font-semibold tracking-widest mb-2 sm:mb-3 ">
+          <p className="text-xs sm:text-sm uppercase text-gray-300 font-semibold tracking-widest mb-2 sm:mb-3">
             Pressure
           </p>
           <div className="w-32 h-32 sm:w-40 sm:h-25 mx-auto relative mb-2 sm:mb-4">
@@ -265,7 +266,7 @@ export const Hero = async ({ city = "Karachi" }) => {
                 fill="none"
                 stroke="url(#pressureGradient)"
                 strokeWidth="8"
-                strokeDasharray={`${pressureFill * 2.2}, 220`} // 220 is circumference of circle with r=35
+                strokeDasharray={`${pressureFill * 2.2}, 220`}
               />
               <defs>
                 <linearGradient
@@ -421,7 +422,7 @@ export const Hero = async ({ city = "Karachi" }) => {
                 fill="none"
                 stroke="url(#visibilityGradient)"
                 strokeWidth="8"
-                strokeDasharray={`${visibilityFill * 2.2}, 220`} // 220 is circumference of circle with r=35
+                strokeDasharray={`${visibilityFill * 2.2}, 220`}
               />
               <defs>
                 <linearGradient
@@ -463,11 +464,11 @@ export const Hero = async ({ city = "Karachi" }) => {
 
         {/* Sunset */}
         <div className="bg-white/5 backdrop-blur-md/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-gray-900 via-gray-800 hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
-          <p className="text-xs sm:text-sm text-gray-400 ">
+          <p className="text-xs sm:text-sm text-gray-400">
             Sunset in {cityName}
           </p>
           <p className="text-base sm:text-lg font-semibold">{sunset}</p>
-          <p className="text-xs sm:text-sm text-gray-400 ">
+          <p className="text-xs sm:text-sm text-gray-400">
             Sunrise in {cityName}
           </p>
           <p className="text-base sm:text-lg font-semibold">{sunrise}</p>

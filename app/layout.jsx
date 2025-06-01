@@ -36,6 +36,6 @@ export const metadata = {
     template: `%s - ${siteConfig.name}`,
   },
   icons: {
-    icon: "/rainfall.ico",
+    icon: "/rain.ico",
   },
 };
