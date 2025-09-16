@@ -6,3 +6,10 @@
 body {
   overflow-y: hidden;
 }
+
+/* Enable vertical scroll only on mobile devices */
+@media (max-width: 640px) {
+  body {
+    overflow-y: auto;
+  }
+}
