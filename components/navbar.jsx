@@ -39,7 +39,7 @@ export const Navbar = () => {
       {/* Search (Desktop) */}
       <div className="hidden md:flex items-center gap-3 max-w-md w-full">
         <input
-          className="w-full px-4 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all placeholder-gray-400 text-sm font-medium"
+          className="w-full px-4 py-2 rounded-xl bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all placeholder-gray-400 text-sm font-medium"
           placeholder="Search city..."
           type="text"
           value={city}
@@ -47,7 +47,7 @@ export const Navbar = () => {
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
         <Button
-          className="px-4 py-2 rounded-xl text-white border border-white/20 hover:bg-white/10 transition-all font-semibold text-sm bg-gradient-to-tr from-blue-800 to-cyan-500"
+          className="px-4 py-2 rounded-xl text-white border border-white/20 hover:bg-blue-500/10 transition-all font-semibold text-sm"
           variant="ghost"
           onClick={handleSearch}
           disabled={loading}
@@ -56,11 +56,12 @@ export const Navbar = () => {
         </Button>
       </div>
 
+      {/* GitHub Link */}
       <a
         href="https://github.com/Code-With-Abdul-67/Next-Weather-App"
         target="_blank"
         rel="noopener noreferrer"
-        className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/10 text-white rounded-xl border border-white/20 hover:bg-white/20 transition-all font-semibold text-sm bg-gradient-to-tr from-blue-800 to-cyan-500"
+        className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl text-white border border-white/20 hover:bg-blue-500/10 transition-all font-semibold text-sm"
         title="View on GitHub"
       >
         <svg
@@ -92,13 +93,13 @@ export const Navbar = () => {
       {/* Mobile menu dropdown */}
       <div
         className={`
-          absolute top-full left-0 w-full bg-grey/10 backdrop-blur-md border-t border-white/20 px-4 py-4 flex flex-col gap-4 md:hidden z-40
+          absolute top-full left-0 w-full bg-black/20 backdrop-blur-md border-t border-white/20 px-4 py-4 flex flex-col gap-4 md:hidden z-40
           transition-all duration-300 ease-in-out
           ${menuOpen ? "max-h-[20rem] opacity-100" : "max-h-0 opacity-0 pointer-events-none"}
         `}
       >
         <input
-          className="w-full px-4 py-2 rounded-xl bg-grey/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/50 transition-all placeholder-gray-400 text-sm font-medium"
+          className="w-full px-4 py-2 rounded-xl bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all placeholder-gray-400 text-sm font-medium"
           placeholder="Search city..."
           type="text"
           value={city}
@@ -106,14 +107,13 @@ export const Navbar = () => {
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
         <Button
-          className="px-4 py-2 rounded-xl text-white border border-white/bg-white/20 hover:bg-white/20 transition-all font-semibold text-sm bg-gradient-to-tr from-blue-800 to-cyan-500"
+          className="px-4 py-2 rounded-xl text-white border border-white/20 hover:bg-blue-500/10 transition-all font-semibold text-sm from-blue-800 to-blue-500"
           variant="ghost"
           onClick={handleSearch}
           disabled={loading}
         >
           {loading ? "Searching..." : "Search"}
         </Button>
-        
       </div>
 
       {/* Bottom loading bar */}
