@@ -14,7 +14,7 @@ export default async function Home({ searchParams }) {
       : "Karachi";
 
   return (
-    <div className="bg-black min-h-screen">
+    <div>
       <Hero city={city} />
     </div>
   );

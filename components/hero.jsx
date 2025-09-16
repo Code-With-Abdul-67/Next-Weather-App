@@ -1,5 +1,30 @@
 import axios from "axios";
 
+// Function to map weather condition to GIF
+const getWeatherGif = (weatherMain) => {
+  switch (weatherMain) {
+    case "Clear":
+      return "/weather-videos/clear-sky.webm";
+    case "Clouds":
+      return "/weather-videos/clouds.webm";
+    case "Rain":
+      return "/weather-videos/rain.webm";
+    case "Thunderstorm":
+      return "/weather-videos/thunderstrom.webm";
+    case "Mist":
+      return "/weather-videos/mist.webm";
+    case "Fog":
+      return "/weather-videos/fog.webm";
+    case "Haze":
+      return "/weather-videos/haze.webm";
+    case "Drizzle":
+      return "/weather-videos/drizzle.webm";
+    case "Smoke":
+      return "/weather-videos/smoke.webm";
+    
+  }
+};
+
 export const Hero = async ({ city = "Karachi" }) => {
   const fetchWeatherData = async (city) => {
     const apiKey = process.env.OPENWEATHERMAP_API_KEY;
@@ -40,26 +65,12 @@ export const Hero = async ({ city = "Karachi" }) => {
   const description = weatherData
     ? weatherData.weather[0].description
     : "Invalid city name";
-  const feelsLike = weatherData ? Math.round(weatherData.main.feels_like) : 8;
-  const humidity = weatherData ? weatherData.main.humidity : 62;
   const visibility = weatherData
     ? Math.round(weatherData.visibility / 1000)
     : 10;
   const pressure = weatherData ? weatherData.main.pressure : 1033;
   const windSpeed = weatherData ? weatherData.wind.speed : 2; // m/s
   const windDirection = weatherData ? weatherData.wind.deg : 0; // degrees
-  const sunset = weatherData
-    ? new Date(weatherData.sys.sunset * 1000).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : "18:51";
-  const sunrise = weatherData
-    ? new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : "06:08";
   const cityName = weatherData ? weatherData.name : "Madrid";
   const lowHigh = weatherData
     ? `Low: ${Math.round(temperature - 4)}° High: ${Math.round(
@@ -165,9 +176,24 @@ export const Hero = async ({ city = "Karachi" }) => {
     dailyForecasts.splice(5);
   }
 
+  // Get weather main for GIF
+  const weatherMain = weatherData ? weatherData.weather[0].main : "Clear";
+  const weatherGif = getWeatherGif(weatherMain);
+
   return (
-    <main className="flex flex-col items-center justify-start bg-grey min-h-screen text-white p-4 sm:p-6">
-      <div className="w-full max-w-4xl bg-white/5 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center mb-4 sm:mb-6 bg-gradient-to-br from-gray-900 via-gray-800">
+    <main className="relative flex flex-col items-center justify-start bg-grey min-h-screen text-white p-4 sm:p-6">
+      {/* Video Background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="fixed top-0 left-0 w-full h-full min-h-screen min-w-full object-cover z-0"
+        src={weatherGif}
+        type="video/webm"
+      />
+      {/* Overlay content */}
+      <div className="relative z-10 w-full max-w-4xl bg-white/5 backdrop-blur-md border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center mb-4 sm:mb-6 bg-gradient-to-br from-gray-600 via-gray-800">
         <p className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
           {formattedDateTime}, {formattedDate} in {cityName}
         </p>
@@ -199,7 +225,6 @@ export const Hero = async ({ city = "Karachi" }) => {
 
                 {/* Cloud Icon */}
                 <div className="flex items-center justify-center mt-1">
-                  {/* <p>Clouds:</p> */}
                   <svg
                     className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400 mr-1"
                     fill="currentColor"
@@ -216,7 +241,6 @@ export const Hero = async ({ city = "Karachi" }) => {
 
                 {/* Rain Icon with Water Droplets */}
                 <div className="flex items-center justify-center mt-1">
-                  {/* <p>Rain:</p> */}
                   <svg
                     className="w-7 h-7 text-blue-400 mr-1"
                     fill="currentColor"
@@ -228,7 +252,6 @@ export const Hero = async ({ city = "Karachi" }) => {
                     <path d="M5 9C5 9 2 13 2 16a3 3 0 006 0c0-2.3-3-7-3-7zm0 9a2 2 0 110-4 2 2 0 010 4z" />
                     <path d="M19 9c0 .1-3 4.1-3 7a3 3 0 006 0c0-3-3-7-3-7zm0 9a2 2 0 110-4 2 2 0 010 4z" />
                   </svg>
-
                   <span className="text-xs sm:text-sm text-gray-400">
                     {forecast.rainChance}%
                   </span>
@@ -241,7 +264,8 @@ export const Hero = async ({ city = "Karachi" }) => {
 
       <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
         {/* Pressure */}
-        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black backdrop-blur-md border border-gray-700 rounded-lg sm:rounded-2xl p-4 sm:p-6 text-center shadow-lg hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
+        <div className="bg-gray-900/30 backdrop-blur-md border border-blue-400/30 rounded-lg sm:rounded-2xl p-4 sm:p-6 text-center shadow-lg hover:bg-blue-800/40 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-gray-700 via-gray-800">
+        
           <p className="text-xs sm:text-sm uppercase text-gray-300 font-semibold tracking-widest mb-2 sm:mb-3">
             Pressure
           </p>
@@ -294,7 +318,7 @@ export const Hero = async ({ city = "Karachi" }) => {
         </div>
 
         {/* Wind */}
-        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black backdrop-blur-md border border-gray-700 rounded-lg sm:rounded-2xl p-4 sm:p-6 text-center shadow-lg hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
+        <div className="bg-gray-900/30 backdrop-blur-md border border-blue-400/30 rounded-lg sm:rounded-2xl p-4 sm:p-6 text-center shadow-lg hover:bg-blue-800/40 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-gray-700 via-gray-800">
           <p className="text-xs sm:text-sm uppercase text-gray-300 font-semibold tracking-widest mb-2 sm:mb-3">
             Wind
           </p>
@@ -354,7 +378,7 @@ export const Hero = async ({ city = "Karachi" }) => {
                 textAnchor="middle"
                 fill="#000"
                 fontSize="9"
-                fontFamily="Cursivw"
+                fontFamily="Cursive"
                 fontWeight="700"
               >
                 E
@@ -396,8 +420,7 @@ export const Hero = async ({ city = "Karachi" }) => {
           </div>
         </div>
 
-        {/* Visibility */}
-        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black backdrop-blur-md border border-gray-700 rounded-lg sm:rounded-2xl p-4 sm:p-6 text-center shadow-lg hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
+        <div className="bg-gray-900/30 backdrop-blur-md border border-blue-400/30 rounded-lg sm:rounded-2xl p-4 sm:p-6 text-center shadow-l g hover:bg-blue-800/40 hover:scale-105 transition-all duration-300 bg-gradient-to-br from-gray-700 via-gray-800">
           <p className="text-xs sm:text-sm uppercase text-gray-300 font-semibold tracking-widest mb-2 sm:mb-3">
             Visibility
           </p>
@@ -444,34 +467,6 @@ export const Hero = async ({ city = "Karachi" }) => {
             </p>
             <p className="text-xs sm:text-sm text-gray-400">In {cityName}</p>
           </div>
-        </div>
-
-        {/* Humidity */}
-        <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-gray-900 via-gray-800 hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
-          <p className="text-xs sm:text-sm font-semibold">Humidity</p>
-          <p className="text-base sm:text-lg font-semibold">{humidity}%</p>
-          <p className="text-xs sm:text-sm text-gray-400">In {cityName}</p>
-        </div>
-
-        {/* Feels Like */}
-        <div className="bg-white/5 backdrop-blur-md border/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-gray-900 via-gray-800 hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
-          <p className="text-xs sm:text-sm font-semibold">Feels Like</p>
-          <p className="text-base sm:text-lg font-semibold">{feelsLike}°</p>
-          <p className="text-xs sm:text-sm text-gray-400">
-            Feels close to the actual temperature in {cityName}.
-          </p>
-        </div>
-
-        {/* Sunset */}
-        <div className="bg-white/5 backdrop-blur-md/20 rounded-lg sm:rounded-2xl p-3 sm:p-4 bg-gradient-to-br from-gray-900 via-gray-800 hover:bg-white/20 hover:scale-105 transition-all duration-300 border-3 border-gray-500 rounded-lg sm:rounded-xl p-2 sm:p-3">
-          <p className="text-xs sm:text-sm text-gray-400">
-            Sunset in {cityName}
-          </p>
-          <p className="text-base sm:text-lg font-semibold">{sunset}</p>
-          <p className="text-xs sm:text-sm text-gray-400">
-            Sunrise in {cityName}
-          </p>
-          <p className="text-base sm:text-lg font-semibold">{sunrise}</p>
         </div>
       </div>
     </main>
