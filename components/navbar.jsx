@@ -4,11 +4,15 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { AppLogo } from "@/components/AppLogo";
+import { useLoading } from "@/context/loading-context";
 
 export const Navbar = () => {
   const [city, setCity] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { isLoading: loading, startLoading, stopLoading } = useLoading();
+  // Helper to maintain compatibility with existing code
+  const setLoading = (val) => val ? startLoading() : stopLoading();
+  
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -16,9 +20,10 @@ export const Navbar = () => {
   const router = useRouter();
   const suggestionsRef = useRef(null);
   const inputRef = useRef(null);
+  const mobileInputRef = useRef(null);
+  const mobileSuggestionsRef = useRef(null);
   const searchTimeout = useRef(null);
 
-  // Handle city input change with autocomplete from API
   const handleCityChange = async (value) => {
     setCity(value);
     
@@ -28,7 +33,6 @@ export const Navbar = () => {
       return;
     }
 
-    // Debounce API calls
     if (searchTimeout.current) {
       clearTimeout(searchTimeout.current);
     }
@@ -51,11 +55,10 @@ export const Navbar = () => {
         } finally {
           setSearchLoading(false);
         }
-      }, 300); // Wait 300ms after user stops typing
+      }, 300); 
     }
   };
 
-  // Handle search submission (Enter key or suggestion click)
   const handleSearch = async (cityName = city) => {
     if (cityName.trim()) {
       try {
@@ -73,14 +76,12 @@ export const Navbar = () => {
     }
   };
 
-  // Handle suggestion click
   const handleSuggestionClick = (cityName) => {
     setCity(cityName);
     setShowSuggestions(false);
     handleSearch(cityName);
   };
 
-  // Handle keyboard navigation
   const handleKeyDown = (e) => {
     if (!showSuggestions) {
       if (e.key === "Enter") {
@@ -115,14 +116,28 @@ export const Navbar = () => {
     }
   };
 
-  // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        suggestionsRef.current &&
-        !suggestionsRef.current.contains(event.target) &&
-        !inputRef.current?.contains(event.target)
-      ) {
+      const target = event.target;
+      
+      const isOutsideDesktop = 
+        suggestionsRef.current && 
+        !suggestionsRef.current.contains(target) && 
+        !inputRef.current?.contains(target);
+
+      const isOutsideMobile = 
+        mobileSuggestionsRef.current && 
+        !mobileSuggestionsRef.current.contains(target) && 
+        !mobileInputRef.current?.contains(target);
+
+      // We only close if it's outside BOTH (checking existence to handle different layout states)
+      // If mobile menu is open, we care about mobile ref. If desktop, desktop ref.
+      // Simplest safety: if it's NOT in any known suggestion container or input, close it.
+      
+      const inDesktop = (suggestionsRef.current?.contains(target) || inputRef.current?.contains(target));
+      const inMobile = (mobileSuggestionsRef.current?.contains(target) || mobileInputRef.current?.contains(target));
+
+      if (!inDesktop && !inMobile) {
         setShowSuggestions(false);
       }
     };
@@ -133,7 +148,6 @@ export const Navbar = () => {
 
   return (
     <nav className="w-full bg-white/10 backdrop-blur-md border-b border-white/20 px-4 py-2 flex justify-between items-center shadow-md fixed top-0 left-0 z-50 h-14 md:h-16">
-      {/* Logo */}
       <div className="flex items-center gap-2">
         <AppLogo className="w-10 h-10" />
         <div className="text-white text-xl font-semibold tracking-wide">
@@ -141,7 +155,6 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* Search (Desktop) - No button, just input with autocomplete */}
       <div className="hidden md:flex items-center gap-3 max-w-md w-full relative">
         <div className="relative w-full">
           <input
@@ -155,7 +168,6 @@ export const Navbar = () => {
             onFocus={() => city.trim() && setShowSuggestions(true)}
           />
           
-          {/* Loading indicator inside input */}
           {searchLoading && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               <svg className="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
@@ -165,7 +177,6 @@ export const Navbar = () => {
             </div>
           )}
           
-          {/* Autocomplete Suggestions */}
           {showSuggestions && suggestions.length > 0 && (
             <div
               ref={suggestionsRef}
@@ -197,7 +208,6 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* GitHub Link */}
       <a
         href="https://github.com/Code-With-Abdul-67/Next-Weather-App"
         target="_blank"
@@ -219,7 +229,6 @@ export const Navbar = () => {
         </svg>
       </a>
 
-      {/* Mobile menu button */}
       <div className="md:hidden">
         <button
           onClick={() => setMenuOpen(!menuOpen)}
@@ -230,7 +239,6 @@ export const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile menu dropdown */}
       <div
         className={`
           absolute top-full left-0 w-full bg-black/20 backdrop-blur-md border-t border-white/20 px-4 py-4 flex flex-col gap-4 md:hidden z-40
@@ -240,6 +248,7 @@ export const Navbar = () => {
       >
         <div className="relative w-full">
           <input
+            ref={mobileInputRef}
             className="w-full px-4 py-2 rounded-xl bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all placeholder-gray-400 text-sm font-medium"
             placeholder="Type any city name..."
             type="text"
@@ -249,7 +258,6 @@ export const Navbar = () => {
             onFocus={() => city.trim() && setShowSuggestions(true)}
           />
           
-          {/* Mobile Loading indicator */}
           {searchLoading && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               <svg className="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
@@ -259,9 +267,11 @@ export const Navbar = () => {
             </div>
           )}
           
-          {/* Mobile Autocomplete Suggestions */}
           {showSuggestions && suggestions.length > 0 && (
-            <div className="mt-2 w-full bg-gradient-to-b from-black/60 via-black/70 to-black/80 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.4)] overflow-hidden ring-1 ring-white/10 before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none relative max-h-64 overflow-y-auto">
+            <div
+              ref={mobileSuggestionsRef}
+              className="mt-2 w-full bg-gradient-to-b from-black/60 via-black/70 to-black/80 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.4)] overflow-hidden ring-1 ring-white/10 before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none relative max-h-64 overflow-y-auto"
+            >
               {suggestions.map((suggestion, index) => (
                 <div
                   key={`mobile-${suggestion.name}-${suggestion.country}-${index}`}
@@ -287,7 +297,6 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* Bottom loading bar */}
       <div
         className={`absolute bottom-0 left-0 h-1 bg-blue-500 transition-all duration-300 ease-in-out ${
           loading ? "w-full opacity-100" : "w-0 opacity-0"

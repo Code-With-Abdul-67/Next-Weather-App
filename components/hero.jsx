@@ -32,7 +32,6 @@ export const Hero = async ({ city = DEFAULT_CITY }) => {
     return <ErrorState city={city} message={error.message} />;
   }
 
-  // Extract current weather data
   const temperature = Math.round(weatherData.main.temp);
   const description = weatherData.weather[0].description;
   const windSpeed = weatherData.wind.speed;
@@ -40,28 +39,22 @@ export const Hero = async ({ city = DEFAULT_CITY }) => {
   const humidity = weatherData.main.humidity;
   const weatherMain = weatherData.weather[0].main;
 
-  // Calculate min/max temperatures from forecast data
   const minMaxTemp = calculateMinMaxTemp(forecastData);
   const lowHigh = minMaxTemp
     ? `Low: ${minMaxTemp.min}° High: ${minMaxTemp.max}°`
     : `Low: ${temperature - 4}° High: ${temperature + 2}°`;
 
-  // Format city time with timezone
   const timezoneOffsetSeconds = weatherData.timezone;
   const { formattedDateTime, formattedDate } = formatCityTime(timezoneOffsetSeconds);
 
-  // Convert wind speed from m/s to km/h
   const windSpeedKmH = Math.round(windSpeed * MS_TO_KMH);
 
-  // Process forecast data
   const sevenDayForecasts = processDailyForecast(forecastData, SEVEN_DAY_FORECAST_LIMIT);
 
-  // Get weather video
   const weatherVideo = getWeatherVideo(weatherMain);
 
   return (
     <main className="relative flex flex-col items-center justify-start bg-gray-900 min-h-[120vh] text-white p-4 sm:p-6">
-      {/* Video Background */}
       <video
         autoPlay
         loop
@@ -72,22 +65,17 @@ export const Hero = async ({ city = DEFAULT_CITY }) => {
         type="video/webm"
       />
 
-      {/* Main Content */}
       <div className="relative z-10 w-full max-w-5xl mx-auto bg-black/20 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-center shadow-lg flex flex-col items-center">
-        {/* City Name */}
         <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2 flex items-center justify-center gap-2">
           {cityName}
         </h2>
 
-        {/* Date & Time */}
         <p className="text-sm text-gray-300 mb-2">
           {formattedDateTime}, {formattedDate}
         </p>
 
-        {/* Weather Description */}
         <p className="text-base text-gray-400 mb-2 capitalize">{description}</p>
 
-        {/* Temperature */}
         <div className="flex items-center justify-center gap-4 mb-4">
           <span className="flex items-center gap-2 text-5xl font-bold text-white">
             {temperature}°
@@ -95,7 +83,6 @@ export const Hero = async ({ city = DEFAULT_CITY }) => {
           </span>
         </div>
 
-        {/* Humidity & Wind Details */}
         <div className="flex items-center justify-center gap-6 mb-4">
           <span className="flex items-center gap-1 text-base text-gray-300">
             <HumidityIcon className="w-5 h-5 text-blue-300" />
@@ -109,10 +96,8 @@ export const Hero = async ({ city = DEFAULT_CITY }) => {
           </span>
         </div>
 
-        {/* Low/High */}
         <p className="text-xs text-gray-400 mb-2">{lowHigh}</p>
 
-        {/* 7-Day Forecast */}
         <div className="mt-4 sm:mt-6 w-full">
           <h2 className="text-lg sm:text-xl font-semibold text-white mb-2 sm:mb-4">
             7-Day Weather Forecast
@@ -124,7 +109,6 @@ export const Hero = async ({ city = DEFAULT_CITY }) => {
           </div>
         </div>
 
-        {/* Hourly Forecast */}
         <div className="mt-4 sm:mt-6 w-full">
           <h2 className="text-lg sm:text-xl font-semibold text-white mb-2 sm:mb-4">
             Hourly Weather Forecast

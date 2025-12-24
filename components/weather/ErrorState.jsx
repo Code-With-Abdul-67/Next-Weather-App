@@ -1,10 +1,21 @@
+"use client";
+
+import { useEffect } from "react";
+import { useNotification } from "@/context/notification-context";
+
 export function ErrorState({ city, message }) {
+  const { showNotification } = useNotification();
+
+  useEffect(() => {
+    showNotification(message || "Invalid city name. Please try again.", "error");
+  }, [message, showNotification]);
+
   return (
-    <main className="relative flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 min-h-[100vh] text-white p-4 sm:p-6">
-      <div className="relative z-10 w-full max-w-md mx-auto bg-red-500/20 backdrop-blur-md border border-red-500/40 rounded-2xl p-8 text-center shadow-lg">
+    <main className="relative flex flex-col items-center justify-center bg-gray-900 min-h-[80vh] text-white p-4 sm:p-6">
+      <div className="relative z-10 w-full max-w-md mx-auto bg-red-500/10 backdrop-blur-md border border-red-500/20 rounded-2xl p-8 text-center shadow-lg">
         {/* Error Icon */}
         <svg
-          className="w-16 h-16 mx-auto mb-4 text-red-400"
+          className="w-16 h-16 mx-auto mb-4 text-red-500"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"

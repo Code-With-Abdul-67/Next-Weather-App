@@ -5,7 +5,9 @@ import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
-import { ZoomBlocker } from "@/components/ZoomBlocker";
+
+import { LoadingOverlay } from "@/components/LoadingOverlay";
+import { NotificationToast } from "@/components/NotificationToast";
 
 export default function RootLayout({ children }) {
   return (
@@ -13,7 +15,7 @@ export default function RootLayout({ children }) {
       <head>
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+          content="width=device-width, initial-scale=1.0"
         />
       </head>
       <body
@@ -23,9 +25,10 @@ export default function RootLayout({ children }) {
           fontSans.variable,
         )}
       >
-        <ZoomBlocker />
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <div className="relative flex flex-col h-screen">
+          <div className="relative flex flex-col min-h-screen">
+            <LoadingOverlay />
+            <NotificationToast />
             <Navbar />
             <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
               {children}
