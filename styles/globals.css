@@ -2,9 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent zoom */
+html {
+  touch-action: pan-x pan-y;
+  -ms-content-zooming: none;
+  -ms-touch-action: pan-x pan-y;
+}
+
 /* Hide vertical scrollbar globally */
 body {
   overflow-y: hidden;
+  /* Prevent user from zooming */
+  touch-action: pan-x pan-y;
 }
 
 /* Enable vertical scroll only on mobile devices */

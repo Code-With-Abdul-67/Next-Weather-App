@@ -1,23 +1,70 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@heroui/button";
 import { Menu, X } from "lucide-react";
+import { AppLogo } from "@/components/AppLogo";
 
 export const Navbar = () => {
   const [city, setCity] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [searchLoading, setSearchLoading] = useState(false);
   const router = useRouter();
+  const suggestionsRef = useRef(null);
+  const inputRef = useRef(null);
+  const searchTimeout = useRef(null);
 
-  const handleSearch = async () => {
-    if (city.trim()) {
+  // Handle city input change with autocomplete from API
+  const handleCityChange = async (value) => {
+    setCity(value);
+    
+    if (value.trim().length === 0) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    // Debounce API calls
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current);
+    }
+
+    if (value.trim().length >= 2) {
+      setSearchLoading(true);
+      searchTimeout.current = setTimeout(async () => {
+        try {
+          const response = await fetch(`/api/cities?q=${encodeURIComponent(value)}`);
+          const data = await response.json();
+          
+          if (data.cities) {
+            setSuggestions(data.cities);
+            setShowSuggestions(true);
+            setSelectedIndex(-1);
+          }
+        } catch (error) {
+          console.error("Search error:", error);
+          setSuggestions([]);
+        } finally {
+          setSearchLoading(false);
+        }
+      }, 300); // Wait 300ms after user stops typing
+    }
+  };
+
+  // Handle search submission (Enter key or suggestion click)
+  const handleSearch = async (cityName = city) => {
+    if (cityName.trim()) {
       try {
         setLoading(true);
-        await router.push(`/?city=${encodeURIComponent(city)}`);
+        await router.push(`/?city=${encodeURIComponent(cityName)}`);
         setMenuOpen(false);
         setCity("");
+        setSuggestions([]);
+        setShowSuggestions(false);
       } catch (error) {
         console.error("Navigation error:", error);
       } finally {
@@ -26,34 +73,128 @@ export const Navbar = () => {
     }
   };
 
+  // Handle suggestion click
+  const handleSuggestionClick = (cityName) => {
+    setCity(cityName);
+    setShowSuggestions(false);
+    handleSearch(cityName);
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (!showSuggestions) {
+      if (e.key === "Enter") {
+        handleSearch();
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setSelectedIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : prev
+        );
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (selectedIndex >= 0) {
+          handleSuggestionClick(suggestions[selectedIndex].name);
+        } else {
+          handleSearch();
+        }
+        break;
+      case "Escape":
+        setShowSuggestions(false);
+        setSelectedIndex(-1);
+        break;
+    }
+  };
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target) &&
+        !inputRef.current?.contains(event.target)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <nav className="w-full bg-white/10 backdrop-blur-md border-b border-white/20 px-4 py-2 flex justify-between items-center shadow-md fixed top-0 left-0 z-50 h-14 md:h-16">
       {/* Logo */}
       <div className="flex items-center gap-2">
-        <img src="/rain.ico" alt="Logo" height="35" width="35" />
+        <AppLogo className="w-10 h-10" />
         <div className="text-white text-xl font-semibold tracking-wide">
           Next Weather
         </div>
       </div>
 
-      {/* Search (Desktop) */}
-      <div className="hidden md:flex items-center gap-3 max-w-md w-full">
-        <input
-          className="w-full px-4 py-2 rounded-xl bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all placeholder-gray-400 text-sm font-medium"
-          placeholder="Search city..."
-          type="text"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-        />
-        <Button
-          className="px-4 py-2 rounded-xl text-white border border-white/20 hover:bg-blue-500/10 transition-all font-semibold text-sm"
-          variant="ghost"
-          onClick={handleSearch}
-          disabled={loading}
-        >
-          {loading ? "Searching..." : "Search"}
-        </Button>
+      {/* Search (Desktop) - No button, just input with autocomplete */}
+      <div className="hidden md:flex items-center gap-3 max-w-md w-full relative">
+        <div className="relative w-full">
+          <input
+            ref={inputRef}
+            className="w-full px-4 py-2 rounded-xl bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all placeholder-gray-400 text-sm font-medium"
+            placeholder="Type any city name..."
+            type="text"
+            value={city}
+            onChange={(e) => handleCityChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => city.trim() && setShowSuggestions(true)}
+          />
+          
+          {/* Loading indicator inside input */}
+          {searchLoading && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <svg className="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            </div>
+          )}
+          
+          {/* Autocomplete Suggestions */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div
+              ref={suggestionsRef}
+              className="absolute top-full mt-2 w-full bg-gradient-to-b from-black/60 via-black/70 to-black/80 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.4)] overflow-hidden z-50 ring-1 ring-white/10 before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none max-h-96 overflow-y-auto"
+            >
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={`${suggestion.name}-${suggestion.country}-${index}`}
+                  className={`px-4 py-3.5 cursor-pointer transition-all duration-200 backdrop-blur-sm relative ${
+                    index === selectedIndex
+                      ? "bg-gradient-to-r from-blue-500/30 via-blue-600/25 to-blue-500/30 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]"
+                      : "hover:bg-white/10 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
+                  } ${index !== suggestions.length - 1 ? "border-b border-white/10" : ""}`}
+                  onClick={() => handleSuggestionClick(suggestion.name)}
+                  onMouseEnter={() => setSelectedIndex(index)}
+                >
+                  <div className="flex items-center justify-between relative z-10">
+                    <span className="text-white font-semibold text-sm drop-shadow-sm">
+                      {suggestion.name}
+                    </span>
+                    <span className="text-gray-400 text-xs font-medium bg-white/5 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                      {suggestion.state ? `${suggestion.state}, ${suggestion.country}` : suggestion.country}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* GitHub Link */}
@@ -88,32 +229,62 @@ export const Navbar = () => {
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
-      
 
       {/* Mobile menu dropdown */}
       <div
         className={`
           absolute top-full left-0 w-full bg-black/20 backdrop-blur-md border-t border-white/20 px-4 py-4 flex flex-col gap-4 md:hidden z-40
           transition-all duration-300 ease-in-out
-          ${menuOpen ? "max-h-[20rem] opacity-100" : "max-h-0 opacity-0 pointer-events-none"}
+          ${menuOpen ? "max-h-[30rem] opacity-100" : "max-h-0 opacity-0 pointer-events-none"}
         `}
       >
-        <input
-          className="w-full px-4 py-2 rounded-xl bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all placeholder-gray-400 text-sm font-medium"
-          placeholder="Search city..."
-          type="text"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-        />
-        <Button
-          className="px-4 py-2 rounded-xl text-white border border-white/20 hover:bg-blue-500/10 transition-all font-semibold text-sm from-blue-800 to-blue-500"
-          variant="ghost"
-          onClick={handleSearch}
-          disabled={loading}
-        >
-          {loading ? "Searching..." : "Search"}
-        </Button>
+        <div className="relative w-full">
+          <input
+            className="w-full px-4 py-2 rounded-xl bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all placeholder-gray-400 text-sm font-medium"
+            placeholder="Type any city name..."
+            type="text"
+            value={city}
+            onChange={(e) => handleCityChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => city.trim() && setShowSuggestions(true)}
+          />
+          
+          {/* Mobile Loading indicator */}
+          {searchLoading && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <svg className="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            </div>
+          )}
+          
+          {/* Mobile Autocomplete Suggestions */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="mt-2 w-full bg-gradient-to-b from-black/60 via-black/70 to-black/80 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.4)] overflow-hidden ring-1 ring-white/10 before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none relative max-h-64 overflow-y-auto">
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={`mobile-${suggestion.name}-${suggestion.country}-${index}`}
+                  className={`px-4 py-3.5 cursor-pointer transition-all duration-200 backdrop-blur-sm relative ${
+                    index === selectedIndex
+                      ? "bg-gradient-to-r from-blue-500/30 via-blue-600/25 to-blue-500/30 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]"
+                      : "hover:bg-white/10 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
+                  } ${index !== suggestions.length - 1 ? "border-b border-white/10" : ""}`}
+                  onClick={() => handleSuggestionClick(suggestion.name)}
+                >
+                  <div className="flex items-center justify-between relative z-10">
+                    <span className="text-white font-semibold text-sm drop-shadow-sm">
+                      {suggestion.name}
+                    </span>
+                    <span className="text-gray-400 text-xs font-medium bg-white/5 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                      {suggestion.state ? `${suggestion.state}, ${suggestion.country}` : suggestion.country}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Bottom loading bar */}

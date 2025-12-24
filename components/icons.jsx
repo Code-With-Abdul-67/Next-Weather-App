@@ -124,3 +124,6 @@ export const SunIcon = ({
     />
   </svg>
 );
+
+// Alias for theme-switch compatibility
+export const SunFilledIcon = SunIcon;
