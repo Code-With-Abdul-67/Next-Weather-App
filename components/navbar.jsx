@@ -75,6 +75,13 @@ export const Navbar = () => {
   const handleLocationClick = () => {
     if (navigator.geolocation) {
       setLoading(true, { city: "Current Location" });
+      
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      };
+
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
@@ -83,15 +90,28 @@ export const Navbar = () => {
             setMenuOpen(false);
           } catch (error) {
             console.error(error);
+            alert("Error updating location weather.");
           } finally {
             setLoading(false);
           }
         },
         (error) => {
-          console.error("Geolocation error:", error);
+          // Geolocation error objects don't log well as JSON, so we log properties manually
+          console.error(`Geolocation error (${error.code}): ${error.message}`);
           setLoading(false);
-          alert("Unable to retrieve your location");
-        }
+          
+          let message = "Unable to retrieve your location.";
+          if (error.code === 1) {
+            message = "Location access denied. Please enable it in browser settings.";
+          } else if (error.code === 2) {
+            message = "Location information is unavailable (your device might not have GPS or a clear signal).";
+          } else if (error.code === 3) {
+            message = "Location request timed out. Please try again.";
+          }
+          
+          alert(message);
+        },
+        options
       );
     } else {
       alert("Geolocation is not supported by this browser.");
@@ -229,165 +249,174 @@ export const Navbar = () => {
         </div>
       </div>
 
-      <div className="hidden md:flex items-center gap-3 max-w-md w-full relative">
-        <div className="relative w-full">
-          <input
-            ref={inputRef}
-            className="w-full px-4 py-2 rounded-xl bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all placeholder-gray-400 text-sm font-medium"
-            placeholder="Type any city name..."
-            type="text"
-            value={city}
-            onChange={(e) => handleCityChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onFocus={() => city.trim() && setShowSuggestions(true)}
-          />
-          
-          {searchLoading && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <svg className="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-            </div>
-          )}
-          
-          {showSuggestions && suggestions.length > 0 && (
-            <div
-              ref={suggestionsRef}
-              className="absolute top-full mt-2 w-full bg-gradient-to-b from-black/60 via-black/70 to-black/80 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.4)] overflow-hidden z-50 ring-1 ring-white/10 before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none max-h-96 overflow-y-auto"
-            >
-              {suggestions.map((suggestion, index) => (
-                <div
-                  key={`${suggestion.name}-${suggestion.country}-${index}`}
-                  className={`px-4 py-3.5 cursor-pointer transition-all duration-200 backdrop-blur-sm relative ${
-                    index === selectedIndex
-                      ? "bg-gradient-to-r from-blue-500/30 via-blue-600/25 to-blue-500/30 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]"
-                      : "hover:bg-white/10 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
-                  } ${index !== suggestions.length - 1 ? "border-b border-white/10" : ""}`}
-                  onClick={() => handleSuggestionClick(suggestion.name)}
-                  onMouseEnter={() => setSelectedIndex(index)}
-                >
-                  <div className="flex items-center justify-between relative z-10 w-full">
-                    <div className="flex flex-col">
-                        <span className="text-white font-semibold text-sm drop-shadow-sm">
-                        {suggestion.name}
-                        </span>
-                        <span className="text-gray-400 text-xs font-medium">
-                        {suggestion.state ? `${suggestion.state}, ${suggestion.country}` : suggestion.country}
-                        </span>
-                    </div>
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            saveFavorite(suggestion);
-                        }}
-                        className="p-2 hover:bg-white/10 rounded-full transition-all"
-                    >
-                        <Heart 
-                            className={`w-5 h-5 ${
-                                favorites.includes(
-                                    suggestion.state 
-                                    ? `${suggestion.name}, ${suggestion.state}, ${suggestion.country}`
-                                    : `${suggestion.name}, ${suggestion.country}`
-                                ) ? "text-red-500 fill-current" : "text-gray-400"}`} 
-                        />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-
-
-      <button
-        onClick={handleLocationClick}
-        className="hidden md:flex items-center justify-center p-2 rounded-xl text-white border border-white/20 hover:bg-blue-500/10 transition-all ml-2"
-        title="Use My Location"
-      >
-        <MapPin className="w-5 h-5" />
-      </button>
-
-      <button
-        onClick={toggleUnit}
-        className="hidden md:flex items-center justify-center w-10 h-10 rounded-xl text-white border border-white/20 hover:bg-blue-500/10 transition-all ml-2 font-bold"
-        title="Toggle Units"
-      >
-        {isMetric ? "°C" : "°F"}
-      </button>
-
-      <div className="relative hidden md:block ml-2">
-        <button
-          onClick={() => setShowFavorites(!showFavorites)}
-          className="flex items-center justify-center p-2 rounded-xl text-white border border-white/20 hover:bg-red-500/10 transition-all"
-          title="Favorites"
-        >
-          <Heart className="w-5 h-5 text-red-500 fill-current" />
-        </button>
-        {showFavorites && (
-          <div className="absolute right-0 top-full mt-2 w-56 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl overflow-hidden z-50">
-            {favorites.length === 0 ? (
-              <div className="p-4 text-gray-400 text-sm text-center">No favorites saved</div>
-            ) : (
-              favorites.map((fav) => (
-                <div
-                  key={fav}
-                  className="flex justify-between items-center px-4 py-3 hover:bg-white/10 cursor-pointer border-b border-white/5 last:border-none transition-colors"
-                  onClick={() => {
-                    handleSearch(fav);
-                    setShowFavorites(false);
-                  }}
-                >
-                  <span className="text-white text-sm font-medium">{fav}</span>
-                  <button
-                    onClick={(e) => removeFavorite(fav, e)}
-                    className="text-gray-400 hover:text-red-400 transition-colors p-1"
+      {/* Desktop Layout: Centered Search + Icons */}
+      <div className="hidden md:flex flex-1 justify-center items-center pointer-events-none">
+        <div className="flex items-center gap-2 max-w-2xl w-full pointer-events-auto">
+          <div className="relative flex-1 max-w-md">
+            <input
+              ref={inputRef}
+              className="w-full px-4 py-2 rounded-xl bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all placeholder-gray-400 text-sm font-medium"
+              placeholder="Type any city name..."
+              type="text"
+              value={city}
+              onChange={(e) => handleCityChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onFocus={() => city.trim() && setShowSuggestions(true)}
+            />
+            
+            {searchLoading && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <svg className="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+              </div>
+            )}
+            
+            {showSuggestions && suggestions.length > 0 && (
+              <div
+                ref={suggestionsRef}
+                className="absolute top-full mt-2 w-full bg-gradient-to-b from-black/60 via-black/70 to-black/80 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.4)] overflow-hidden z-50 ring-1 ring-white/10 before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none max-h-96 overflow-y-auto"
+              >
+                {suggestions.map((suggestion, index) => (
+                  <div
+                    key={`${suggestion.name}-${suggestion.country}-${index}`}
+                    className={`px-4 py-3.5 cursor-pointer transition-all duration-200 backdrop-blur-sm relative ${
+                      index === selectedIndex
+                        ? "bg-gradient-to-r from-blue-500/30 via-blue-600/25 to-blue-500/30 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]"
+                        : "hover:bg-white/10 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
+                    } ${index !== suggestions.length - 1 ? "border-b border-white/10" : ""}`}
+                    onClick={() => handleSuggestionClick(suggestion.name)}
+                    onMouseEnter={() => setSelectedIndex(index)}
                   >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))
+                    <div className="flex items-center justify-between relative z-10 w-full">
+                      <div className="flex flex-col">
+                          <span className="text-white font-semibold text-sm drop-shadow-sm">
+                          {suggestion.name}
+                          </span>
+                          <span className="text-gray-400 text-xs font-medium">
+                          {suggestion.state ? `${suggestion.state}, ${suggestion.country}` : suggestion.country}
+                          </span>
+                      </div>
+                      <button
+                          onClick={(e) => {
+                              e.stopPropagation();
+                              saveFavorite(suggestion);
+                          }}
+                          className="p-2 hover:bg-white/10 rounded-full transition-all"
+                      >
+                          <Heart 
+                              className={`w-5 h-5 ${
+                                  favorites.includes(
+                                      suggestion.state 
+                                      ? `${suggestion.name}, ${suggestion.state}, ${suggestion.country}`
+                                      : `${suggestion.name}, ${suggestion.country}`
+                                  ) ? "text-red-500 fill-current" : "text-gray-400"}`} 
+                          />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
-        )}
-      </div>
 
-      <div className="md:hidden">
-        <div
-          className="text-white flex items-center gap-4 cursor-pointer"
-          aria-label="Toggle menu"
-          role="button"
-        >
-          <div className="flex items-center gap-3">
-              <button 
-                onClick={(e) => { e.stopPropagation(); handleLocationClick(); }}
-                className="p-1 hover:bg-white/10 rounded-lg transition-colors"
-                title="Use My Location"
-              >
-                <MapPin size={24} />
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); toggleUnit(); }}
-                className="font-bold text-lg p-1 hover:bg-white/10 rounded-lg transition-colors w-10 text-center"
-                title="Toggle Units"
-              >
-                {isMetric ? "°C" : "°F"}
-              </button>
-              <button 
-                onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
-                className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={handleLocationClick}
+              className="flex items-center justify-center p-2 rounded-xl text-white border border-white/20 hover:bg-blue-500/10 transition-all focus:ring-2 focus:ring-blue-400/40"
+              title="Use My Location"
+            >
+              <MapPin className="w-5 h-5" />
+            </button>
+
+            <button
+              onClick={toggleUnit}
+              className="flex items-center justify-center w-10 h-10 rounded-xl text-white border border-white/20 hover:bg-blue-500/10 transition-all font-bold text-sm focus:ring-2 focus:ring-blue-400/40"
+              title="Toggle Units"
+            >
+              {isMetric ? "°C" : "°F"}
+            </button>
+
+            <div className="relative">
+              <button
+                onClick={() => setShowFavorites(!showFavorites)}
+                className="flex items-center justify-center p-2 rounded-xl text-white border border-white/20 hover:bg-red-500/10 transition-all focus:ring-2 focus:ring-red-400/40"
                 title="Favorites"
               >
-                <Heart size={24} className={`${favorites.length > 0 ? "text-red-500 fill-current" : "text-gray-400"}`} />
+                <Heart className="w-5 h-5 text-red-500 fill-current" />
               </button>
-          </div>
-          <div onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+              
+              {showFavorites && (
+                <div className="absolute right-0 top-full mt-2 w-64 bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden z-50">
+                  {favorites.length === 0 ? (
+                    <div className="p-6 text-gray-400 text-sm text-center">No favorites saved</div>
+                  ) : (
+                    <div className="max-h-80 overflow-y-auto">
+                      {favorites.map((fav) => (
+                        <div
+                          key={fav}
+                          className="flex justify-between items-center px-4 py-3.5 hover:bg-white/10 cursor-pointer border-b border-white/5 last:border-none transition-colors"
+                          onClick={() => {
+                            handleSearch(fav);
+                            setShowFavorites(false);
+                          }}
+                        >
+                          <span className="text-white text-sm font-medium truncate flex-1">{fav}</span>
+                          <button
+                            onClick={(e) => removeFavorite(fav, e)}
+                            className="text-gray-400 hover:text-red-400 transition-colors p-1.5"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Empty spacer for balancing the left-aligned logo */}
+      <div className="hidden md:block w-32 shrink-0" />
+
+
+
+
+      <div className="md:hidden flex items-center gap-2">
+        <button 
+          onClick={handleLocationClick}
+          className="p-2 text-white hover:bg-white/10 rounded-xl transition-colors"
+          title="Use My Location"
+        >
+          <MapPin size={20} />
+        </button>
+        <button 
+          onClick={toggleUnit}
+          className="font-bold text-sm p-2 text-white hover:bg-white/10 rounded-xl transition-colors w-10 text-center"
+          title="Toggle Units"
+        >
+          {isMetric ? "°C" : "°F"}
+        </button>
+        <button 
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="p-2 text-white hover:bg-white/10 rounded-xl transition-colors"
+          title="Favorites"
+        >
+          <Heart size={20} className={`${favorites.length > 0 ? "text-red-500 fill-current" : "text-gray-400"}`} />
+        </button>
+        <button 
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="p-2 text-white hover:bg-white/10 rounded-xl transition-colors ml-1"
+          aria-label="Toggle menu"
+        >
+          {menuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
 
       <div
         className={`
