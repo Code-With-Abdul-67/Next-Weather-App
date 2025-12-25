@@ -12,22 +12,24 @@ import {
   HOURLY_FORECAST_LIMIT,
   SEVEN_DAY_FORECAST_LIMIT,
 } from "@/lib/constants";
+import { DetailsGrid } from "@/components/weather/DetailsGrid";
 import { ErrorState } from "@/components/weather/ErrorState";
 import { ForecastCard } from "@/components/weather/ForecastCard";
 import { HourlyCard } from "@/components/weather/HourlyCard";
-import { HumidityIcon, WindIcon } from "@/components/weather/WeatherIcon";
+import { WindIcon } from "@/components/weather/WeatherIcon";
 
 // Revalidate weather data every 10 minutes (600 seconds)
 export const revalidate = 600;
 
-export const Hero = async ({ city = DEFAULT_CITY }) => {
+export const Hero = async ({ city = DEFAULT_CITY, units = "metric" }) => {
   // Fetch weather data with proper error handling
   let weatherData, forecastData;
   
   try {
-    const data = await fetchWeatherData(city);
+    const data = await fetchWeatherData(city, units);
     weatherData = data.current;
     forecastData = data.forecast;
+    var pollutionData = data.pollution;
   } catch (error) {
     return <ErrorState city={city} message={error.message} />;
   }
@@ -47,7 +49,7 @@ export const Hero = async ({ city = DEFAULT_CITY }) => {
   const timezoneOffsetSeconds = weatherData.timezone;
   const { formattedDateTime, formattedDate } = formatCityTime(timezoneOffsetSeconds);
 
-  const windSpeedKmH = Math.round(windSpeed * MS_TO_KMH);
+
 
   const sevenDayForecasts = processDailyForecast(forecastData, SEVEN_DAY_FORECAST_LIMIT);
 
@@ -78,25 +80,19 @@ export const Hero = async ({ city = DEFAULT_CITY }) => {
 
         <div className="flex items-center justify-center gap-4 mb-4">
           <span className="flex items-center gap-2 text-5xl font-bold text-white">
-            {temperature}°
+            {temperature}°{units === "imperial" ? "F" : "C"}
             <WindIcon className="w-8 h-8 text-blue-400" />
           </span>
         </div>
 
-        <div className="flex items-center justify-center gap-6 mb-4">
-          <span className="flex items-center gap-1 text-base text-gray-300">
-            <HumidityIcon className="w-5 h-5 text-blue-300" />
-            Humidity:{" "}
-            <span className="font-semibold text-blue-300">{humidity}%</span>
-          </span>
-          <span className="flex items-center gap-1 text-base text-gray-300">
-            <WindIcon className="w-5 h-5 text-blue-400" />
-            Wind:{" "}
-            <span className="font-semibold text-blue-400">{windSpeedKmH} km/h</span>
-          </span>
-        </div>
 
-        <p className="text-xs text-gray-400 mb-2">{lowHigh}</p>
+
+        <DetailsGrid 
+            weatherData={weatherData} 
+            pollutionData={pollutionData} 
+            minMaxTemp={minMaxTemp || {min: temperature-4, max: temperature+2}}
+            units={units}
+        />
 
         <div className="mt-4 sm:mt-6 w-full">
           <h2 className="text-lg sm:text-xl font-semibold text-white mb-2 sm:mb-4">
@@ -104,7 +100,7 @@ export const Hero = async ({ city = DEFAULT_CITY }) => {
           </h2>
           <div className="flex flex-wrap justify-center items-center gap-4 mx-auto">
             {sevenDayForecasts.map((forecast, idx) => (
-              <ForecastCard key={idx} {...forecast} />
+              <ForecastCard key={idx} {...forecast} units={units} />
             ))}
           </div>
         </div>
@@ -128,6 +124,7 @@ export const Hero = async ({ city = DEFAULT_CITY }) => {
                   humidity={hour.main.humidity}
                   weatherMain={hour.weather[0].main}
                   isDay={isDay}
+                  units={units}
                 />
               );
             })}

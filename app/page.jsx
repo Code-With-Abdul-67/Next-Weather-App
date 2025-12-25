@@ -1,21 +1,25 @@
 import { Hero } from "@/components/hero";
+import { cookies } from "next/headers";
 
-export default async function Home({ searchParams }) {
-  // searchParams is expected to be a Promise resolving to an object
-  const params = await searchParams;
+export default async function Home() {
+  const cookieStore = await cookies();
+  const cityCookie = cookieStore.get("city")?.value;
+  let city = "Karachi";
+  
+  if (cityCookie) {
+    try {
+      // Try parsing as JSON (for lat/lon objects) or fallback to string
+      city = cityCookie.startsWith("{") ? JSON.parse(cityCookie) : cityCookie;
+    } catch {
+      city = cityCookie;
+    }
+  }
 
-  const rawCity = params.city;
-
-  const city =
-    typeof rawCity === "string"
-      ? rawCity
-      : Array.isArray(rawCity)
-      ? rawCity[0] ?? "Karachi"
-      : "Karachi";
+  const units = cookieStore.get("units")?.value || "metric";
 
   return (
     <div>
-      <Hero city={city} />
+      <Hero city={city} units={units} />
     </div>
   );
 }

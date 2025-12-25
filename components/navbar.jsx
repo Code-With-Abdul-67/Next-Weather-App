@@ -2,16 +2,17 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, X, MapPin, Heart, Trash2, Thermometer } from "lucide-react";
 import { AppLogo } from "@/components/AppLogo";
 import { useLoading } from "@/context/loading-context";
+import { updateCity, updateUnit } from "@/app/actions";
 
 export const Navbar = () => {
   const [city, setCity] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const { isLoading: loading, startLoading, stopLoading } = useLoading();
-  // Helper to maintain compatibility with existing code
-  const setLoading = (val) => val ? startLoading() : stopLoading();
+  // Helper to maintain compatibility with existing code while supporting metadata
+  const setLoading = (val, meta = {}) => val ? startLoading(meta) : stopLoading();
   
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -23,6 +24,79 @@ export const Navbar = () => {
   const mobileInputRef = useRef(null);
   const mobileSuggestionsRef = useRef(null);
   const searchTimeout = useRef(null);
+
+  // Feature states
+  const [favorites, setFavorites] = useState([]);
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [isMetric, setIsMetric] = useState(true);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("weather_favorites");
+    if (saved) setFavorites(JSON.parse(saved));
+    
+    // Check cookie for unit or default to metric (simplified)
+    const unitCookie = document.cookie.split('; ').find(row => row.startsWith('units='));
+    if (unitCookie) {
+       setIsMetric(unitCookie.split('=')[1] === 'metric');
+    }
+  }, []);
+
+  const toggleUnit = async () => {
+    const newUnit = isMetric ? "imperial" : "metric";
+    setIsMetric(!isMetric);
+    setLoading(true, { city: "Updating Units" });
+    await updateUnit(newUnit);
+    setLoading(false);
+  };
+
+  const saveFavorite = (suggestion) => {
+    // Create a unique key: "London, GB" or "London, Ontario, CA"
+    const uniqueName = suggestion.state 
+        ? `${suggestion.name}, ${suggestion.state}, ${suggestion.country}`
+        : `${suggestion.name}, ${suggestion.country}`;
+    
+    let newFavs;
+    if (favorites.includes(uniqueName)) {
+      newFavs = favorites.filter(f => f !== uniqueName);
+    } else {
+      newFavs = [...favorites, uniqueName];
+    }
+    setFavorites(newFavs);
+    localStorage.setItem("weather_favorites", JSON.stringify(newFavs));
+  };
+
+  const removeFavorite = (cityName, e) => {
+    if (e) e.stopPropagation();
+    const newFavs = favorites.filter(f => f !== cityName);
+    setFavorites(newFavs);
+    localStorage.setItem("weather_favorites", JSON.stringify(newFavs));
+  };
+
+  const handleLocationClick = () => {
+    if (navigator.geolocation) {
+      setLoading(true, { city: "Current Location" });
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            await updateCity({ lat: latitude, lon: longitude });
+            setMenuOpen(false);
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setLoading(false);
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          setLoading(false);
+          alert("Unable to retrieve your location");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  };
 
   const handleCityChange = async (value) => {
     setCity(value);
@@ -62,8 +136,8 @@ export const Navbar = () => {
   const handleSearch = async (cityName = city) => {
     if (cityName.trim()) {
       try {
-        setLoading(true);
-        await router.push(`/?city=${encodeURIComponent(cityName)}`);
+        setLoading(true, { city: cityName });
+        await updateCity(cityName);
         setMenuOpen(false);
         setCity("");
         setSuggestions([]);
@@ -193,13 +267,31 @@ export const Navbar = () => {
                   onClick={() => handleSuggestionClick(suggestion.name)}
                   onMouseEnter={() => setSelectedIndex(index)}
                 >
-                  <div className="flex items-center justify-between relative z-10">
-                    <span className="text-white font-semibold text-sm drop-shadow-sm">
-                      {suggestion.name}
-                    </span>
-                    <span className="text-gray-400 text-xs font-medium bg-white/5 px-2 py-0.5 rounded-full backdrop-blur-sm">
-                      {suggestion.state ? `${suggestion.state}, ${suggestion.country}` : suggestion.country}
-                    </span>
+                  <div className="flex items-center justify-between relative z-10 w-full">
+                    <div className="flex flex-col">
+                        <span className="text-white font-semibold text-sm drop-shadow-sm">
+                        {suggestion.name}
+                        </span>
+                        <span className="text-gray-400 text-xs font-medium">
+                        {suggestion.state ? `${suggestion.state}, ${suggestion.country}` : suggestion.country}
+                        </span>
+                    </div>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            saveFavorite(suggestion);
+                        }}
+                        className="p-2 hover:bg-white/10 rounded-full transition-all"
+                    >
+                        <Heart 
+                            className={`w-5 h-5 ${
+                                favorites.includes(
+                                    suggestion.state 
+                                    ? `${suggestion.name}, ${suggestion.state}, ${suggestion.country}`
+                                    : `${suggestion.name}, ${suggestion.country}`
+                                ) ? "text-red-500 fill-current" : "text-gray-400"}`} 
+                        />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -208,35 +300,73 @@ export const Navbar = () => {
         </div>
       </div>
 
-      <a
-        href="https://github.com/Code-With-Abdul-67/Next-Weather-App"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl text-white border border-white/20 hover:bg-blue-500/10 transition-all font-semibold text-sm"
-        title="View on GitHub"
+
+
+      <button
+        onClick={handleLocationClick}
+        className="hidden md:flex items-center justify-center p-2 rounded-xl text-white border border-white/20 hover:bg-blue-500/10 transition-all ml-2"
+        title="Use My Location"
       >
-        <svg
-          className="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
+        <MapPin className="w-5 h-5" />
+      </button>
+
+      <button
+        onClick={toggleUnit}
+        className="hidden md:flex items-center justify-center w-10 h-10 rounded-xl text-white border border-white/20 hover:bg-blue-500/10 transition-all ml-2 font-bold"
+        title="Toggle Units"
+      >
+        {isMetric ? "°C" : "°F"}
+      </button>
+
+      <div className="relative hidden md:block ml-2">
+        <button
+          onClick={() => setShowFavorites(!showFavorites)}
+          className="flex items-center justify-center p-2 rounded-xl text-white border border-white/20 hover:bg-red-500/10 transition-all"
+          title="Favorites"
         >
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M12 0C5.37 0 0 5.373 0 12a12.03 12.03 0 008.207 11.387c.6.112.793-.262.793-.58v-2.217c-3.338.727-4.033-1.61-4.033-1.61-.546-1.385-1.334-1.755-1.334-1.755-1.09-.745.082-.73.082-.73 1.205.086 1.84 1.24 1.84 1.24 1.07 1.833 2.806 1.304 3.49.997.107-.783.42-1.305.763-1.605-2.665-.303-5.466-1.362-5.466-6.06 0-1.34.47-2.437 1.236-3.296-.124-.303-.536-1.522.117-3.174 0 0 1.008-.322 3.3 1.23a11.51 11.51 0 016 0c2.29-1.552 3.296-1.23 3.296-1.23.655 1.652.243 2.87.12 3.174.77.86 1.236 1.957 1.236 3.296 0 4.71-2.804 5.754-5.475 6.05.43.372.823 1.104.823 2.225v3.293c0 .32.19.697.8.58A12.03 12.03 0 0024 12c0-6.627-5.373-12-12-12z"
-          />
-        </svg>
-      </a>
+          <Heart className="w-5 h-5 text-red-500 fill-current" />
+        </button>
+        {showFavorites && (
+          <div className="absolute right-0 top-full mt-2 w-56 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl overflow-hidden z-50">
+            {favorites.length === 0 ? (
+              <div className="p-4 text-gray-400 text-sm text-center">No favorites saved</div>
+            ) : (
+              favorites.map((fav) => (
+                <div
+                  key={fav}
+                  className="flex justify-between items-center px-4 py-3 hover:bg-white/10 cursor-pointer border-b border-white/5 last:border-none transition-colors"
+                  onClick={() => {
+                    handleSearch(fav);
+                    setShowFavorites(false);
+                  }}
+                >
+                  <span className="text-white text-sm font-medium">{fav}</span>
+                  <button
+                    onClick={(e) => removeFavorite(fav, e)}
+                    className="text-gray-400 hover:text-red-400 transition-colors p-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
 
       <div className="md:hidden">
-        <button
+        <div
           onClick={() => setMenuOpen(!menuOpen)}
-          className="text-white"
+          className="text-white flex items-center gap-4 cursor-pointer"
           aria-label="Toggle menu"
+          role="button"
         >
+          <div className="flex items-center gap-3 md:hidden">
+              <button onClick={handleLocationClick}><MapPin size={24} /></button>
+              <button onClick={toggleUnit} className="font-bold text-lg">{isMetric ? "°C" : "°F"}</button>
+          </div>
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        </div>
       </div>
 
       <div
@@ -282,13 +412,31 @@ export const Navbar = () => {
                   } ${index !== suggestions.length - 1 ? "border-b border-white/10" : ""}`}
                   onClick={() => handleSuggestionClick(suggestion.name)}
                 >
-                  <div className="flex items-center justify-between relative z-10">
-                    <span className="text-white font-semibold text-sm drop-shadow-sm">
-                      {suggestion.name}
-                    </span>
-                    <span className="text-gray-400 text-xs font-medium bg-white/5 px-2 py-0.5 rounded-full backdrop-blur-sm">
-                      {suggestion.state ? `${suggestion.state}, ${suggestion.country}` : suggestion.country}
-                    </span>
+                  <div className="flex items-center justify-between relative z-10 w-full">
+                    <div className="flex flex-col">
+                        <span className="text-white font-semibold text-sm drop-shadow-sm">
+                        {suggestion.name}
+                        </span>
+                        <span className="text-gray-400 text-xs font-medium">
+                        {suggestion.state ? `${suggestion.state}, ${suggestion.country}` : suggestion.country}
+                        </span>
+                    </div>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            saveFavorite(suggestion);
+                        }}
+                        className="p-2 hover:bg-white/10 rounded-full transition-all"
+                    >
+                         <Heart 
+                            className={`w-5 h-5 ${
+                                favorites.includes(
+                                    suggestion.state 
+                                    ? `${suggestion.name}, ${suggestion.state}, ${suggestion.country}`
+                                    : `${suggestion.name}, ${suggestion.country}`
+                                ) ? "text-red-500 fill-current" : "text-gray-400"}`} 
+                        />
+                    </button>
                   </div>
                 </div>
               ))}

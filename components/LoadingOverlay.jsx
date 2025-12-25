@@ -3,13 +3,24 @@
 import { useEffect, useState } from "react";
 import { useLoading } from "@/context/loading-context";
 
-export const LoadingOverlay = () => {
-  const { isLoading } = useLoading();
+export const LoadingOverlay = ({ initialCity }) => {
+  const { isLoading, loadingMeta } = useLoading();
   const [isVisible, setIsVisible] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoad(false);
+    }, 2000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  const cityToShow = loadingMeta?.city || initialCity || "City";
+  
   const loadingText = progress < 30 
-    ? "Locating City..." 
+    ? `Getting weather status for ${cityToShow}...`
     : progress < 60 
     ? "Analyzing Atmosphere..." 
     : progress < 90 
@@ -19,9 +30,9 @@ export const LoadingOverlay = () => {
   useEffect(() => {
     let interval;
 
-    if (isLoading) {
+    if (isLoading || isInitialLoad) {
       setIsVisible(true);
-      setProgress(0);
+      if (!isVisible) setProgress(0);
 
       interval = setInterval(() => {
         setProgress((prev) => {
@@ -58,7 +69,7 @@ export const LoadingOverlay = () => {
     }
     
     return () => clearInterval(interval);
-  }, [isLoading, isVisible]);
+  }, [isLoading, isVisible, isInitialLoad]);
 
   if (!isVisible) return null;
 
