@@ -40,18 +40,22 @@ Now optimized as a **Progressive Web App (PWA)** for a native app-like experienc
 We've been hard at work polishing the experience! Here is a summary of the latest changes:
 
 ### ✨ **New Features**
+*   **Mobile Favorites Interface**: Added a dedicated Heart icon and a "Favorite Cities" quick-access list specifically optimized for mobile devices.
 *   **PWA Integration**: Added `manifest.json` and Service Workers. You can now install this web app on your phone!
     *   **iOS**: Share -> Add to Home Screen.
     *   **Android**: Install prompt or Menu -> Install App.
 *   **Smart Loading Overlay**: 
     *   The loading screen now persists on page refreshes.
     *   It intelligently displays the city name being fetched: *"Getting weather status for Mumbai..."*.
-*   **Cookie-Based State**: Refactored the entire app to store the selected city in cookies. This keeps the URL looking clean (`https://your-site.com`) while still remembering your location.
+*   **Cookie-Based State**: Refactored the entire app to store the selected city in cookies. This keeps the URL looking clean (`https://next-weather-sable.vercel.app/`) while still remembering your location.
 
 ### 🐛 **Bug Fixes & Cleanup**
-*   **Security Fix**: securely managed API keys and removed unsafe environment files from history.
+*   **Security & Stability**: 
+    *   Added support for multiple API key naming conventions (fallback to `NEXT_PUBLIC_`).
+    *   Implemented server-side logging for easier debugging of environment variables in Vercel.
+*   **UI/UX Polishing**: Fixed mobile navigation bugs where the menu would unexpectedly open when switching units or using geolocation.
 *   **Null Safety**: Added robust checks for missing weather data to prevent app crashes.
-*   **Codebase Cleanup**: Removed unused components (`theme-switch`, `primitives`) to reduce bundle size and keep the code clean.
+*   **Performance Optimization**: Completely removed `next-themes` and all theme-switching logic. This reduced the bundle size and simplified the provider tree for faster loading and a more focused "glassmorphism" experience.
 
 ---
 

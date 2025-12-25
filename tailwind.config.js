@@ -10,12 +10,12 @@ const config = {
   theme: {
     extend: {
       fontFamily: {
-      cursive: 'var(--CursiveFont)',
+        cursive: 'var(--CursiveFont)',
       },
     },
   },
 
-  darkMode: "class",
+
   plugins: [heroui()],
 };
 

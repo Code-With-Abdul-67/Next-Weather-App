@@ -356,16 +356,36 @@ export const Navbar = () => {
 
       <div className="md:hidden">
         <div
-          onClick={() => setMenuOpen(!menuOpen)}
           className="text-white flex items-center gap-4 cursor-pointer"
           aria-label="Toggle menu"
           role="button"
         >
-          <div className="flex items-center gap-3 md:hidden">
-              <button onClick={handleLocationClick}><MapPin size={24} /></button>
-              <button onClick={toggleUnit} className="font-bold text-lg">{isMetric ? "°C" : "°F"}</button>
+          <div className="flex items-center gap-3">
+              <button 
+                onClick={(e) => { e.stopPropagation(); handleLocationClick(); }}
+                className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                title="Use My Location"
+              >
+                <MapPin size={24} />
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); toggleUnit(); }}
+                className="font-bold text-lg p-1 hover:bg-white/10 rounded-lg transition-colors w-10 text-center"
+                title="Toggle Units"
+              >
+                {isMetric ? "°C" : "°F"}
+              </button>
+              <button 
+                onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
+                className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                title="Favorites"
+              >
+                <Heart size={24} className={`${favorites.length > 0 ? "text-red-500 fill-current" : "text-gray-400"}`} />
+              </button>
           </div>
-          {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          <div onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          </div>
         </div>
       </div>
 
@@ -443,6 +463,35 @@ export const Navbar = () => {
             </div>
           )}
         </div>
+
+        {/* Mobile Favorites Section */}
+        {favorites.length > 0 && (
+          <div className="mt-2 border-t border-white/10 pt-4 flex flex-col gap-2">
+            <h3 className="text-white/70 text-[10px] font-bold uppercase tracking-wider flex items-center gap-2 px-1">
+              <Heart size={12} className="text-red-500 fill-current" /> Favorite Cities
+            </h3>
+            <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-1">
+              {favorites.map((fav) => (
+                <div
+                  key={`mobile-fav-${fav}`}
+                  className="flex justify-between items-center px-4 py-3 bg-white/5 hover:bg-white/10 active:bg-white/15 rounded-xl border border-white/5 transition-all group"
+                  onClick={() => handleSearch(fav)}
+                >
+                  <span className="text-white text-sm font-medium truncate flex-1">{fav}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFavorite(fav);
+                    }}
+                    className="text-gray-500 hover:text-red-400 p-1 transition-colors"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div

@@ -54,7 +54,7 @@ export default async function RootLayout({ children }) {
           fontSans.variable,
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+        <Providers>
           <ServiceWorkerRegistration />
           <div className="relative flex flex-col min-h-screen">
             <LoadingOverlay initialCity={city} />
