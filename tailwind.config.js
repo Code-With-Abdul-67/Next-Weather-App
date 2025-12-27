@@ -10,7 +10,7 @@ const config = {
   theme: {
     extend: {
       fontFamily: {
-        cursive: 'var(--CursiveFont)',
+        cursive: 'var(--font-cursive)',
       },
     },
   },

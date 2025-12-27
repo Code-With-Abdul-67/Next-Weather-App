@@ -1,29 +1,36 @@
-import { RainIcon, CloudIcon } from "./WeatherIcon";
+import { RainIcon, CloudIcon, SunIcon, MoonIcon } from "./WeatherIcon";
 
 export function ForecastCard({
   day,
-  avgTemp,
+  minTemp,
+  maxTemp,
   description,
-  rainChance,
-  cloudChance,
   units,
 }) {
+  const main = description.toLowerCase();
+  
   return (
-    <div className="bg-white/10 backdrop-blur-md border border-gray-700 rounded-lg sm:rounded-2xl p-2 sm:p-3 text-center flex flex-col items-center">
-      <p className="text-xs sm:text-sm font-semibold text-gray-300 mb-1">
-        {day}
+    <div className="flex items-center justify-between w-full py-3 border-b border-white/5 last:border-none group">
+      <p className="text-sm sm:text-base font-bold text-gray-200 w-16">
+        {day.split(',')[0]}
       </p>
-      <p className="text-base font-bold text-white mb-1">{avgTemp}°{units === "imperial" ? "F" : ""}</p>
-      <p className="text-xs text-gray-400 capitalize mb-1">{description}</p>
-      <div className="flex gap-2">
-        <span className="flex items-center text-blue-400 text-xs">
-          <RainIcon className="w-5 h-5 mr-1" />
-          {rainChance}%
-        </span>
-        <span className="flex items-center text-gray-300 text-xs">
-          <CloudIcon className="w-5 h-5 mr-1" />
-          {cloudChance}%
-        </span>
+      
+      <div className="flex items-center justify-center flex-1">
+        {main.includes("rain") ? (
+          <RainIcon className="w-6 h-6" />
+        ) : main.includes("cloud") ? (
+          <CloudIcon className="w-6 h-6" />
+        ) : (
+          <SunIcon className="w-6 h-6" />
+        )}
+      </div>
+
+      <div className="flex items-center justify-end gap-4 w-32">
+        <span className="text-sm font-semibold text-gray-400 w-10 text-right">{minTemp}°</span>
+        <div className="flex-1 h-1.5 rounded-full bg-gradient-to-r from-blue-400 via-yellow-400 to-red-400 opacity-50 relative min-w-[60px]">
+          <div className="absolute inset-0 bg-white/20 rounded-full blur-[1px]"></div>
+        </div>
+        <span className="text-sm font-bold text-white w-10 text-left">{maxTemp}°</span>
       </div>
     </div>
   );

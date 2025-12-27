@@ -1,15 +1,15 @@
-import { RainIcon, CloudIcon, SunIcon, MoonIcon, HumidityIcon } from "./WeatherIcon";
+import { RainIcon, CloudIcon, SunIcon, MoonIcon } from "./WeatherIcon";
 
-export function HourlyCard({ hourTime, temp, humidity, weatherMain, isDay, units }) {
+export function HourlyCard({ hourTime, temp, weatherMain, isDay, units }) {
   const main = weatherMain ? weatherMain.toLowerCase() : "";
 
   return (
-    <div className="bg-black/30 backdrop-blur-md border border-gray-700 rounded-lg sm:rounded-2xl p-2 sm:p-3 text-center hover:bg-white/20 hover:scale-105 transition-all duration-300 flex flex-col items-center">
-      <p className="text-xs sm:text-sm font-semibold text-gray-300 mb-1">
-        {hourTime}
+    <div className="flex flex-col items-center justify-between p-3 min-w-[100px] flex-shrink-0 rounded-2xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 group">
+      <p className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-tighter">
+        {hourTime.split(' ')[0]}
       </p>
       
-      <div className="flex items-center justify-center mb-1">
+      <div className="mb-2 group-hover:scale-110 transition-transform duration-300">
         {main.includes("rain") ? (
           <RainIcon className="w-8 h-8" />
         ) : main.includes("cloud") ? (
@@ -21,19 +21,7 @@ export function HourlyCard({ hourTime, temp, humidity, weatherMain, isDay, units
         )}
       </div>
       
-      <p className="text-lg font-bold text-white mb-1">{Math.round(temp)}°{units === "imperial" ? "F" : ""}</p>
-      
-      <div className="flex items-center justify-center gap-1 text-xs text-blue-300">
-        <HumidityIcon className="w-4 h-4" />
-        {humidity}%
-      </div>
-      
-      {main.includes("rain") && (
-        <div className="flex items-center justify-center gap-1 text-xs text-blue-400 mt-1">
-          <RainIcon className="w-4 h-4" />
-          Rain
-        </div>
-      )}
+      <p className="text-lg font-black text-white">{Math.round(temp)}°</p>
     </div>
   );
 }

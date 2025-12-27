@@ -18,7 +18,7 @@ export const Navbar = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [searchLoading, setSearchLoading] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
   const suggestionsRef = useRef(null);
   const inputRef = useRef(null);
   const mobileInputRef = useRef(null);
@@ -241,7 +241,7 @@ export const Navbar = () => {
   }, []);
 
   return (
-    <nav className="w-full bg-white/10 backdrop-blur-md border-b border-white/20 px-4 py-2 flex justify-between items-center shadow-md fixed top-0 left-0 z-50 h-14 md:h-16">
+    <nav className="w-full bg-black/40 backdrop-blur-xl border-b border-white/10 px-4 py-2 flex justify-between items-center shadow-2xl fixed top-0 left-0 z-50 h-14 md:h-16">
       <div className="flex items-center gap-2">
         <AppLogo className="w-10 h-10" />
         <div className="text-white text-xl font-semibold tracking-wide">
@@ -251,12 +251,17 @@ export const Navbar = () => {
 
       {/* Desktop Layout: Centered Search + Icons */}
       <div className="hidden md:flex flex-1 justify-center items-center pointer-events-none">
-        <div className="flex items-center gap-2 max-w-2xl w-full pointer-events-auto">
-          <div className="relative flex-1 max-w-md">
+        <div className="flex items-center gap-4 max-w-6xl w-full pointer-events-auto">
+          <div className="relative flex-1 max-w-lg">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
             <input
               ref={inputRef}
-              className="w-full px-4 py-2 rounded-xl bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all placeholder-gray-400 text-sm font-medium"
-              placeholder="Type any city name..."
+              className="w-full pl-10 pr-4 py-2 rounded-3xl bg-black/40 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder-gray-400 text-lg font-bold backdrop-blur-sm font-cursive"
+              placeholder="Search for a city..."
               type="text"
               value={city}
               onChange={(e) => handleCityChange(e.target.value)}
@@ -281,7 +286,7 @@ export const Navbar = () => {
                 {suggestions.map((suggestion, index) => (
                   <div
                     key={`${suggestion.name}-${suggestion.country}-${index}`}
-                    className={`px-4 py-3.5 cursor-pointer transition-all duration-200 backdrop-blur-sm relative ${
+                    className={`px-4 py-3.5 cursor-pointer transition-all duration-200 backdrop-blur-sm relative font-mono ${
                       index === selectedIndex
                         ? "bg-gradient-to-r from-blue-500/30 via-blue-600/25 to-blue-500/30 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]"
                         : "hover:bg-white/10 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
@@ -291,10 +296,10 @@ export const Navbar = () => {
                   >
                     <div className="flex items-center justify-between relative z-10 w-full">
                       <div className="flex flex-col">
-                          <span className="text-white font-semibold text-sm drop-shadow-sm">
+                          <span className="text-white font-bold text-lg drop-shadow-sm">
                           {suggestion.name}
                           </span>
-                          <span className="text-gray-400 text-xs font-medium">
+                          <span className="text-gray-300 text-sm font-semibold">
                           {suggestion.state ? `${suggestion.state}, ${suggestion.country}` : suggestion.country}
                           </span>
                       </div>
@@ -426,10 +431,15 @@ export const Navbar = () => {
         `}
       >
         <div className="relative w-full">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
           <input
             ref={mobileInputRef}
-            className="w-full px-4 py-2 rounded-xl bg-black/20 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400/40 transition-all placeholder-gray-400 text-sm font-medium"
-            placeholder="Type any city name..."
+            className="w-full pl-10 pr-4 py-3 rounded-2xl bg-black/40 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder-gray-400 text-lg font-bold backdrop-blur-sm font-mono"
+            placeholder="Search for a city..."
             type="text"
             value={city}
             onChange={(e) => handleCityChange(e.target.value)}
@@ -454,7 +464,7 @@ export const Navbar = () => {
               {suggestions.map((suggestion, index) => (
                 <div
                   key={`mobile-${suggestion.name}-${suggestion.country}-${index}`}
-                  className={`px-4 py-3.5 cursor-pointer transition-all duration-200 backdrop-blur-sm relative ${
+                  className={`px-4 py-3.5 cursor-pointer transition-all duration-200 backdrop-blur-sm relative font-mono ${
                     index === selectedIndex
                       ? "bg-gradient-to-r from-blue-500/30 via-blue-600/25 to-blue-500/30 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]"
                       : "hover:bg-white/10 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
@@ -463,10 +473,10 @@ export const Navbar = () => {
                 >
                   <div className="flex items-center justify-between relative z-10 w-full">
                     <div className="flex flex-col">
-                        <span className="text-white font-semibold text-sm drop-shadow-sm">
+                        <span className="text-white font-bold text-lg drop-shadow-sm">
                         {suggestion.name}
                         </span>
-                        <span className="text-gray-400 text-xs font-medium">
+                        <span className="text-gray-300 text-sm font-semibold">
                         {suggestion.state ? `${suggestion.state}, ${suggestion.country}` : suggestion.country}
                         </span>
                     </div>

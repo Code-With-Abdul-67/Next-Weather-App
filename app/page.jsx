@@ -1,3 +1,4 @@
+
 import { Hero } from "@/components/hero";
 import { cookies } from "next/headers";
 
