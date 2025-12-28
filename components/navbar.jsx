@@ -82,37 +82,47 @@ export const Navbar = () => {
         maximumAge: 0
       };
 
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          try {
-            await updateCity({ lat: latitude, lon: longitude });
-            setMenuOpen(false);
-          } catch (error) {
-            console.error(error);
-            alert("Error updating location weather.");
-          } finally {
-            setLoading(false);
-          }
-        },
-        (error) => {
-          // Geolocation error objects don't log well as JSON, so we log properties manually
-          console.error(`Geolocation error (${error.code}): ${error.message}`);
+      const successCallback = async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          await updateCity({ lat: latitude, lon: longitude });
+          setMenuOpen(false);
+        } catch (error) {
+          console.error("Location Update Error:", error);
+          alert("Error updating location weather.");
+        } finally {
           setLoading(false);
-          
-          let message = "Unable to retrieve your location.";
-          if (error.code === 1) {
-            message = "Location access denied. Please enable it in browser settings.";
-          } else if (error.code === 2) {
-            message = "Location information is unavailable (your device might not have GPS or a clear signal).";
-          } else if (error.code === 3) {
-            message = "Location request timed out. Please try again.";
-          }
-          
-          alert(message);
-        },
-        options
-      );
+        }
+      };
+
+      const errorCallback = (error) => {
+        // If high accuracy failed (Error 2 or 3), try again with low accuracy
+        if (options.enableHighAccuracy && (error.code === 2 || error.code === 3)) {
+          console.warn(`Geolocation high-accuracy failed (${error.code}), retrying with low accuracy...`);
+          options.enableHighAccuracy = false;
+          navigator.geolocation.getCurrentPosition(successCallback, finalErrorCallback, options);
+          return;
+        }
+        finalErrorCallback(error);
+      };
+
+      const finalErrorCallback = (error) => {
+        console.error(`Geolocation error (${error.code}): ${error.message}`);
+        setLoading(false);
+        
+        let message = "Unable to retrieve your location.";
+        if (error.code === 1) {
+          message = "Location access denied. Please enable it in browser settings.";
+        } else if (error.code === 2) {
+          message = "Location information is unavailable. This usually happens if GPS is disabled or your device has no clear signal.";
+        } else if (error.code === 3) {
+          message = "Location request timed out. Please try again.";
+        }
+        
+        alert(message);
+      };
+
+      navigator.geolocation.getCurrentPosition(successCallback, errorCallback, options);
     } else {
       alert("Geolocation is not supported by this browser.");
     }
@@ -260,7 +270,7 @@ export const Navbar = () => {
             </div>
             <input
               ref={inputRef}
-              className="w-full pl-10 pr-4 py-2 rounded-3xl bg-black/40 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder-gray-400 text-lg font-bold backdrop-blur-sm font-cursive"
+              className="w-full pl-10 pr-4 py-2 rounded-3xl bg-black/40 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder-gray-400 text-lg font-bold backdrop-blur-sm"
               placeholder="Search for a city..."
               type="text"
               value={city}
@@ -286,7 +296,7 @@ export const Navbar = () => {
                 {suggestions.map((suggestion, index) => (
                   <div
                     key={`${suggestion.name}-${suggestion.country}-${index}`}
-                    className={`px-4 py-3.5 cursor-pointer transition-all duration-200 backdrop-blur-sm relative font-mono ${
+                    className={`px-4 py-3.5 cursor-pointer transition-all duration-200 backdrop-blur-sm relative ${
                       index === selectedIndex
                         ? "bg-gradient-to-r from-blue-500/30 via-blue-600/25 to-blue-500/30 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]"
                         : "hover:bg-white/10 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
@@ -438,7 +448,7 @@ export const Navbar = () => {
           </div>
           <input
             ref={mobileInputRef}
-            className="w-full pl-10 pr-4 py-3 rounded-2xl bg-black/40 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder-gray-400 text-lg font-bold backdrop-blur-sm font-mono"
+            className="w-full pl-10 pr-4 py-3 rounded-2xl bg-black/40 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder-gray-400 text-lg font-bold backdrop-blur-sm"
             placeholder="Search for a city..."
             type="text"
             value={city}
@@ -464,7 +474,7 @@ export const Navbar = () => {
               {suggestions.map((suggestion, index) => (
                 <div
                   key={`mobile-${suggestion.name}-${suggestion.country}-${index}`}
-                  className={`px-4 py-3.5 cursor-pointer transition-all duration-200 backdrop-blur-sm relative font-mono ${
+                  className={`px-4 py-3.5 cursor-pointer transition-all duration-200 backdrop-blur-sm relative ${
                     index === selectedIndex
                       ? "bg-gradient-to-r from-blue-500/30 via-blue-600/25 to-blue-500/30 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]"
                       : "hover:bg-white/10 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"

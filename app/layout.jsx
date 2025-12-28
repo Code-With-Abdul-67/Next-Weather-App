@@ -3,7 +3,7 @@ import clsx from "clsx";
 
 import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
-import { fontSans, fontCursive } from "@/config/fonts";
+import { fontSans, fontMono } from "@/config/fonts";
 import { Navbar } from "@/components/navbar";
 
 import { LoadingOverlay } from "@/components/LoadingOverlay";
@@ -50,9 +50,9 @@ export default async function RootLayout({ children }) {
       <body
         suppressHydrationWarning
         className={clsx(
-          "min-h-screen text-foreground bg-background font-cursive antialiased",
+          "min-h-screen text-foreground bg-background font-sans font-light antialiased overflow-x-hidden desktop-lock",
           fontSans.variable,
-          fontCursive.variable,
+          fontMono.variable,
         )}
       >
         <Providers>
